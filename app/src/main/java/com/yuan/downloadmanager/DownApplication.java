@@ -14,8 +14,7 @@ public class DownApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        DownloadManager.init(this);
+        DownloadManager.getInstance().init(this);
 
 //        File cacheFile = new File(getCacheDir(), "okcache");
 //        Cache cache = new Cache(cacheFile, 100 * 1024 * 1024);// 100mb

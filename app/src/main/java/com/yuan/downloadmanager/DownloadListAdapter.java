@@ -141,8 +141,6 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                         case DOWNLOAD_STATUS_ERROR:
                             mDownloadManager.add(itemTask);
                             break;
-
-
                     }
                 }
             }
@@ -167,17 +165,12 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
 
             @Override
             public void onCreate(DownloadTask downloadTask) {
-                if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.wait);
-                }
             }
 
             @Override
             public void onWait(DownloadTask downloadTask) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
                     holder.stateButton.setText(R.string.wait);
-                    holder.progressBar.setProgress(0);
-                    holder.progressView.setText("0");
                 }
             }
 

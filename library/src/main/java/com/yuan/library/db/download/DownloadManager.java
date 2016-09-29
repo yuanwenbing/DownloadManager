@@ -23,12 +23,10 @@ import okhttp3.OkHttpClient;
  */
 
 public class DownloadManager {
-    // context
-    private static Context mContext;
     // manager instance
-    private static DownloadManager mDownloadManager;
+    private static DownloadManager mInstance;
     // 队列
-    BlockingQueue<Runnable> mBlockingDeque;
+    private BlockingQueue<Runnable> mBlockingDeque;
     // download database dao
     private DownloadDao mDownloadDao;
     // ok http
@@ -40,29 +38,7 @@ public class DownloadManager {
     private Map<String, DownloadTask> mCurrentTaskList;
 
     private DownloadManager() {
-        initOkHttpClient();
 
-        if (mContext == null) {
-            throw new RuntimeException("Please init context in application!");
-        }
-
-        mDownloadDao = new DownloadDao(mContext);
-        // 初始化线程池
-        mExecutorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        mCurrentTaskList = new HashMap<>();
-
-        mBlockingDeque = mExecutorService.getQueue();
-
-        initDbState();
-    }
-
-    /**
-     * 方法加锁，防止多线程操作时出现多个实例
-     */
-    private static synchronized void init() {
-        if (mDownloadManager == null) {
-            mDownloadManager = new DownloadManager();
-        }
     }
 
     /**
@@ -70,19 +46,27 @@ public class DownloadManager {
      *
      * @return 当前实例对象
      */
-    public static DownloadManager getInstance() {
-        if (mDownloadManager == null) {
-            init();
+    public static synchronized DownloadManager getInstance() {
+        if (mInstance == null) {
+            mInstance = new DownloadManager();
         }
-        return mDownloadManager;
+        return mInstance;
     }
 
-    /**
-     * 管理器初始化，建议在application中调用
-     */
-    public static void init(Context context) {
-        mContext = context;
-        getInstance();
+
+    public void init(Context context) {
+        // init net
+        initOkHttpClient();
+        // init db
+        mDownloadDao = new DownloadDao(context);
+        initDBState();
+        // init thread pool
+        mExecutorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        mExecutorService.prestartAllCoreThreads();
+        mCurrentTaskList = new HashMap<>();
+
+        mBlockingDeque = mExecutorService.getQueue();
+
     }
 
     /**
@@ -224,10 +208,9 @@ public class DownloadManager {
 
     /**
      * 主要做一些判断,比如正在下载过程中程序突然终止,
-     * 而一些状态来来得及存储,比如正在下载的状态,
-     * 没有及时变为暂停状态。
+     * 而一些状态来来得及存储,比如正在下载的状态,没有及时变为暂停状态。
      */
-    private void initDbState() {
+    private void initDBState() {
         List<DownloadEntity> entities = mDownloadDao.queryAll();
         for (DownloadEntity entity : entities) {
             long completedSize = entity.getCompletedSize();

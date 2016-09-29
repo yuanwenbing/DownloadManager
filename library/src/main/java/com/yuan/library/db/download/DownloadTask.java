@@ -251,7 +251,7 @@ public class DownloadTask implements Runnable {
     private void onCallBack() {
         handler.sendEmptyMessage(downloadStatus);
         // 同步manager中的task信息
-        DownloadManager.getInstance().updateDownloadTask(this);
+//        DownloadManager.getInstance().updateDownloadTask(this);
     }
 
     private String getDownLoadPercent() {
