@@ -2,32 +2,47 @@ package com.yuan.downloadmanager;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    @BindView(R.id.recyclerView)
+    RecyclerView mRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ButterKnife.bind(this);
 
-
-//        DownloadEntity.Builder builder = new DownloadEntity.Builder();
-//        builder.url("http://www.baidu.com");
-//        builder.completedSize(2343);
-//        builder.totalSize(10000);
-//        builder.downloadId(UUID.randomUUID() + "");
-//        builder.downloadStatus(0);
-//        builder.fileName("a.txt");
-//        builder.saveDirPath("sdcard/");
-//
-//        DownloadDao downloadDao = new DownloadDao(this);
-//        DownloadEntity entity = builder.build();
-//        downloadDao.insert(entity);
-
-//        entity = downloadDao.query(entity.getDownloadId());
-//        if (BuildConfig.DEBUG) Log.d("MainActivity", "entity:" + entity);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        DownloadListAdapter adapter = new DownloadListAdapter(this, getMockData());
+        mRecyclerView.setAdapter(adapter);
 
 
     }
 
+    private List<MockEntity> getMockData() {
+        List<MockEntity> list = new ArrayList<>();
+
+        for(int i = 'a'; i<'o'; i++) {
+            MockEntity entity = new MockEntity();
+            char c = (char) i;
+            String s = String.valueOf(c);
+            entity.setTitle(s.toUpperCase());
+            entity.setUrl("http://192.168.1.193:8888/test." + s + s + s);
+            list.add(entity);
+        }
+
+        return list;
+
+    }
 }

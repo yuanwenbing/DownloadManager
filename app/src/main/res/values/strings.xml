@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DownloadManager</string>
+    <string name="start">开始</string>
+    <string name="pause">暂停</string>
+    <string name="wait">等待</string>
+    <string name="cancel">取消</string>
+    <string name="resume">继续</string>
+    <string name="delete">删除</string>
+    <string name="failure">失败</string>
 </resources>

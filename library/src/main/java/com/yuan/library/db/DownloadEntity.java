@@ -26,6 +26,16 @@ public class DownloadEntity {
 
     }
 
+    public DownloadEntity(String downloadId, Long totalSize, Long completedSize, String url, String saveDirPath, String fileName, Integer downloadStatus) {
+        this.downloadId = downloadId;
+        this.totalSize = totalSize;
+        this.completedSize = completedSize;
+        this.url = url;
+        this.saveDirPath = saveDirPath;
+        this.fileName = fileName;
+        this.downloadStatus = downloadStatus;
+    }
+
     public DownloadEntity(Builder builder) {
         this.downloadId = builder.downloadId;
         this.totalSize = builder.totalSize;
