@@ -22,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_ERROR_FILE_NOT_FOUND;
+import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_CANCEL;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_CREATE;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_ERROR;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_FINISH;
@@ -126,7 +127,10 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                             mDownloadManager.pause(itemTask);
                             break;
                         case DOWNLOAD_STATUS_WAIT:
-                            mDownloadManager.cancel(itemTask);
+                            mDownloadManager.cancelWait(itemTask);
+                            break;
+                        case DOWNLOAD_STATUS_CANCEL:
+                            mDownloadManager.add(itemTask);
                             break;
                         case DOWNLOAD_STATUS_PAUSE:
                             mDownloadManager.resume(itemTask);
@@ -171,7 +175,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             @Override
             public void onWait(DownloadTask downloadTask) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.start);
+                    holder.stateButton.setText(R.string.wait);
                     holder.progressBar.setProgress(0);
                     holder.progressView.setText("0");
                 }
@@ -198,7 +202,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             public void onCancel(DownloadTask downloadTask) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
                     holder.stateButton.setText(R.string.start);
-                    holder.progressView.setText("");
+                    holder.progressView.setText("0");
                     holder.progressBar.setProgress(0);
                 }
             }

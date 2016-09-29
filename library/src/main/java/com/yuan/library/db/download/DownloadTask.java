@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -59,7 +60,7 @@ public class DownloadTask implements Runnable {
     // error code
     private int errorCode;
 
-     Handler handler = new Handler(Looper.getMainLooper()) {
+    Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             int code = msg.what;
@@ -82,7 +83,7 @@ public class DownloadTask implements Runnable {
                     break;
                 // 取消
                 case DownloadStatus.DOWNLOAD_STATUS_CANCEL:
-                    cancel();
+                    mListener.onCancel(DownloadTask.this);
                     break;
                 // 完成
                 case DownloadStatus.DOWNLOAD_STATUS_FINISH:
@@ -112,6 +113,7 @@ public class DownloadTask implements Runnable {
     public void run() {
         InputStream inputStream = null;
         BufferedInputStream bis = null;
+        System.out.println("runrunru");
         try {
             // 数据库中加载数据
             dbEntity = mDownloadDao.query(mTaskId);
@@ -233,11 +235,14 @@ public class DownloadTask implements Runnable {
         return finish;
     }
 
-    /**
-     * 删除数据库文件和已经下载的文件
-     */
     public void cancel() {
-        mListener.onCancel(DownloadTask.this);
+        downloadStatus = DownloadStatus.DOWNLOAD_STATUS_CANCEL;
+        handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
+    }
+
+    public void waits() {
+        downloadStatus = DownloadStatus.DOWNLOAD_STATUS_WAIT;
+        handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_WAIT);
     }
 
     /**
@@ -354,6 +359,7 @@ public class DownloadTask implements Runnable {
         private int downloadStatus = DownloadStatus.DOWNLOAD_STATUS_CREATE;
         private long totalSize;
         private long completedSize;
+        private ArrayBlockingQueue blockingQueue;
 
         private DownloadTaskListener listener;
 

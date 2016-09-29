@@ -84,7 +84,7 @@ public class DownloadDao {
                 String saveDirPath = cursor.getString(cursor.getColumnIndex("saveDirPath"));
                 String fileName = cursor.getString(cursor.getColumnIndex("fileName"));
                 int downloadStatus = cursor.getInt(cursor.getColumnIndex("downloadStatus"));
-                System.out.println("0000000");
+
                 list.add(builder.downloadId(downloadId)
                         .totalSize(totalSize)
                         .completedSize(completedSize)

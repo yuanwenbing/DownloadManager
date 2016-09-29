@@ -9,9 +9,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -27,14 +27,15 @@ public class DownloadManager {
     private static Context mContext;
     // manager instance
     private static DownloadManager mDownloadManager;
+    // 队列
+    BlockingQueue<Runnable> mBlockingDeque;
     // download database dao
     private DownloadDao mDownloadDao;
     // ok http
     private OkHttpClient mClient;
     // the max download count
-    private int mPoolSize = 3;
     //
-    private ExecutorService mExecutorService;
+    private ThreadPoolExecutor mExecutorService;
     //
     private Map<String, DownloadTask> mCurrentTaskList;
 
@@ -47,21 +48,12 @@ public class DownloadManager {
 
         mDownloadDao = new DownloadDao(mContext);
         // 初始化线程池
-        mExecutorService = Executors.newFixedThreadPool(mPoolSize);
+        mExecutorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mCurrentTaskList = new HashMap<>();
+
+        mBlockingDeque = mExecutorService.getQueue();
+
         initDbState();
-    }
-
-    public void setTaskPoolSize(int size) {
-        if (size < 1) {
-            size = 1;
-        }
-        mPoolSize = size;
-
-    }
-
-    public boolean isTerminated() {
-        return mExecutorService.isTerminated();
     }
 
     /**
@@ -113,22 +105,15 @@ public class DownloadManager {
             downloadTask.setClient(mClient);
             downloadTask.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CREATE);
             mCurrentTaskList.put(downloadTask.getTaskId(), downloadTask);
-            Future future = mExecutorService.submit(downloadTask);
+            if (!mBlockingDeque.contains(downloadTask)) {
+                mExecutorService.execute(downloadTask);
+            }
+            if (mBlockingDeque.contains(downloadTask)) {
+                downloadTask.waits();
+            }
         }
     }
 
-    /**
-     * 恢复下载任务
-     */
-    public void resume(DownloadTask downloadTask) {
-        if (downloadTask != null && !isDownloading(downloadTask)) {
-            downloadTask.setDownloadDao(mDownloadDao);
-            downloadTask.setClient(mClient);
-            downloadTask.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_RESUME);
-            mCurrentTaskList.put(downloadTask.getTaskId(), downloadTask);
-            Future future = mExecutorService.submit(downloadTask);
-        }
-    }
 
     private boolean isDownloading(DownloadTask task) {
         if (task != null) {
@@ -150,19 +135,26 @@ public class DownloadManager {
 
     /**
      * 重新开始已经暂停的下载任务
-     *
-     * @param id 任务id
      */
-    public void resume(String id) {
-        DownloadTask task = getDownloadTask(id);
+    public void resume(DownloadTask task) {
         if (task != null) {
-            resume(task);
+            add(task);
+        }
+    }
+
+    public void cancelWait(DownloadTask task) {
+        if (mBlockingDeque.contains(task)) {
+            try {
+                mBlockingDeque.take();
+                task.cancel();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     /**
      * 取消下载任务(同时会删除已经下载的文件，和清空数据库缓存)
-     *
      */
     public void cancel(DownloadTask task) {
         if (task != null) {
@@ -247,7 +239,7 @@ public class DownloadManager {
         }
     }
 
-    private DownloadTask parseEntity2Task( DownloadEntity entity) {
+    private DownloadTask parseEntity2Task(DownloadEntity entity) {
         if (entity != null) {
             return new DownloadTask.Builder()
                     .setDownloadStatus(entity.getDownloadStatus())
