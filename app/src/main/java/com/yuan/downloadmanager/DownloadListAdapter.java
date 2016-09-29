@@ -64,7 +64,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         final MockEntity entity = mListData.get(holder.getAdapterPosition());
         holder.titleView.setText(entity.getTitle());
         holder.itemView.setTag(mListData.get(holder.getAdapterPosition()).getUrl());
-        DownloadTask itemTask = mDownloadManager.getDownloadTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
+        DownloadTask itemTask = mDownloadManager.getTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
 
         if (itemTask == null) {
             holder.stateButton.setText(R.string.start);
@@ -110,7 +110,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         holder.stateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DownloadTask itemTask = mDownloadManager.getDownloadTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
+                DownloadTask itemTask = mDownloadManager.getTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
 
                 if (itemTask == null) {
                     itemTask = new DownloadTask.Builder().setId(entity.getUrl().hashCode() + "").setUrl(entity.getUrl()).build();
@@ -165,6 +165,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
 
             @Override
             public void onCreate(DownloadTask downloadTask) {
+
             }
 
             @Override

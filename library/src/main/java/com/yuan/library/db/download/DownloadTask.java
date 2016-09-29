@@ -113,7 +113,6 @@ public class DownloadTask implements Runnable {
     public void run() {
         InputStream inputStream = null;
         BufferedInputStream bis = null;
-        System.out.println("runrunru");
         try {
             // 数据库中加载数据
             dbEntity = mDownloadDao.query(mTaskId);
@@ -183,13 +182,13 @@ public class DownloadTask implements Runnable {
                         dbEntity.setCompletedSize(mCompletedSize);
                         mDownloadDao.update(dbEntity);
                         //onStart 回调
-                        onCallBack();
+                        handler.sendEmptyMessage(downloadStatus);
                     }
                 }
 
                 //onStart;
                 // 防止最后一次不足UPDATE_SIZE，导致percent无法达到100%
-                onCallBack();
+                handler.sendEmptyMessage(downloadStatus);
             }
         } catch (FileNotFoundException e) {
             // file not found
@@ -203,7 +202,7 @@ public class DownloadTask implements Runnable {
             errorCode = DownloadStatus.DOWNLOAD_ERROR_IO_ERROR;
         } finally {
             if (isFinish()) {
-                onCallBack();
+                handler.sendEmptyMessage(downloadStatus);
             }
 
             // 下载后新数据库
@@ -235,6 +234,12 @@ public class DownloadTask implements Runnable {
         return finish;
     }
 
+    public void create() {
+        setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CREATE);
+        handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_CREATE);
+    }
+
+
     public void cancel() {
         downloadStatus = DownloadStatus.DOWNLOAD_STATUS_CANCEL;
         handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
@@ -245,14 +250,10 @@ public class DownloadTask implements Runnable {
         handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_WAIT);
     }
 
-    /**
-     * 分发回调事件到ui层
-     */
-    private void onCallBack() {
-        handler.sendEmptyMessage(downloadStatus);
-        // 同步manager中的task信息
-//        DownloadManager.getInstance().updateDownloadTask(this);
+    public void pause() {
+        downloadStatus = DownloadStatus.DOWNLOAD_STATUS_PAUSE;
     }
+
 
     private String getDownLoadPercent() {
         String baifenbi = "0";// 接受百分比的值
@@ -303,11 +304,11 @@ public class DownloadTask implements Runnable {
         }
     }
 
-    void setDownloadDao(DownloadDao mDownloadDao) {
+    public void setDownloadDao(DownloadDao mDownloadDao) {
         this.mDownloadDao = mDownloadDao;
     }
 
-    void setClient(OkHttpClient mClient) {
+    public void setClient(OkHttpClient mClient) {
         this.mClient = mClient;
     }
 
@@ -319,7 +320,7 @@ public class DownloadTask implements Runnable {
         return downloadStatus;
     }
 
-    void setDownloadStatus(int downloadStatus) {
+    public void setDownloadStatus(int downloadStatus) {
         this.downloadStatus = downloadStatus;
     }
 
@@ -382,7 +383,7 @@ public class DownloadTask implements Runnable {
         /**
          * 设置保存地址
          */
-        Builder setSaveDirPath(String saveDirPath) {
+        public Builder setSaveDirPath(String saveDirPath) {
             this.saveDirPath = saveDirPath;
             return this;
         }
@@ -390,7 +391,7 @@ public class DownloadTask implements Runnable {
         /**
          * 设置下载状态
          */
-        Builder setDownloadStatus(int downloadStatus) {
+        public Builder setDownloadStatus(int downloadStatus) {
             this.downloadStatus = downloadStatus;
             return this;
         }
@@ -398,7 +399,7 @@ public class DownloadTask implements Runnable {
         /**
          * 设置文件名
          */
-        Builder setFileName(String fileName) {
+        public Builder setFileName(String fileName) {
             this.fileName = fileName;
             return this;
         }
@@ -406,7 +407,7 @@ public class DownloadTask implements Runnable {
         /**
          * 文件总大小
          */
-        Builder setTotalSize(long totalSize) {
+        public Builder setTotalSize(long totalSize) {
             this.totalSize = totalSize;
             return this;
         }
@@ -414,7 +415,7 @@ public class DownloadTask implements Runnable {
         /**
          * 已经下载大小
          */
-        Builder setCompletedSize(long completedSize) {
+        public Builder setCompletedSize(long completedSize) {
             this.completedSize = completedSize;
             return this;
         }

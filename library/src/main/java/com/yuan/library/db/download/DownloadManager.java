@@ -16,24 +16,17 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 
-/**
- * Created by Yuan on 27/09/2016:11:08 AM.
- * <p/>
- * Description:com.yuan.library.db.download.DownloadManager
- */
-
 public class DownloadManager {
     // manager instance
     private static DownloadManager mInstance;
     // 队列
-    private BlockingQueue<Runnable> mBlockingDeque;
+    private BlockingQueue<Runnable> mQueue;
     // download database dao
     private DownloadDao mDownloadDao;
     // ok http
     private OkHttpClient mClient;
-    // the max download count
-    //
-    private ThreadPoolExecutor mExecutorService;
+    // ThreadPoolExecutor
+    private ThreadPoolExecutor mExecutor;
     //
     private Map<String, DownloadTask> mCurrentTaskList;
 
@@ -61,11 +54,11 @@ public class DownloadManager {
         mDownloadDao = new DownloadDao(context);
         initDBState();
         // init thread pool
-        mExecutorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        mExecutorService.prestartAllCoreThreads();
+        mExecutor = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        mExecutor.prestartAllCoreThreads();
         mCurrentTaskList = new HashMap<>();
 
-        mBlockingDeque = mExecutorService.getQueue();
+        mQueue = mExecutor.getQueue();
 
     }
 
@@ -83,18 +76,22 @@ public class DownloadManager {
     /**
      * 添加下载任务
      */
-    public void add(DownloadTask downloadTask) {
-        if (downloadTask != null && !isDownloading(downloadTask)) {
-            downloadTask.setDownloadDao(mDownloadDao);
-            downloadTask.setClient(mClient);
-            downloadTask.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CREATE);
-            mCurrentTaskList.put(downloadTask.getTaskId(), downloadTask);
-            if (!mBlockingDeque.contains(downloadTask)) {
-                mExecutorService.execute(downloadTask);
+    public void add(DownloadTask task) {
+        if (task != null && !isDownloading(task)) {
+            task.setDownloadDao(mDownloadDao);
+            task.setClient(mClient);
+            create(task);
+            mCurrentTaskList.put(task.getTaskId(), task);
+
+
+            if (!mQueue.contains(task)) {
+                mExecutor.execute(task);
             }
-            if (mBlockingDeque.contains(downloadTask)) {
-                downloadTask.waits();
+
+            if (mQueue.contains(task)) {
+                task.waits();
             }
+
         }
     }
 
@@ -108,12 +105,19 @@ public class DownloadManager {
         return false;
     }
 
+    public void create(DownloadTask task) {
+        if (task != null) {
+            task.create();
+        }
+    }
+
     /**
      * 暂停下载任务
      */
     public void pause(DownloadTask task) {
         if (task != null) {
-            task.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_PAUSE);
+            removeFromQueue(task);
+            task.pause();
         }
     }
 
@@ -127,9 +131,16 @@ public class DownloadManager {
     }
 
     public void cancelWait(DownloadTask task) {
-        if (mBlockingDeque.contains(task)) {
+        if (task != null) {
+            removeFromQueue(task);
+            task.cancel();
+        }
+    }
+
+    private void removeFromQueue(DownloadTask task) {
+        if (mQueue.contains(task)) {
             try {
-                mBlockingDeque.take();
+                mQueue.take();
                 task.cancel();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -146,26 +157,11 @@ public class DownloadManager {
             task.cancel();
             mDownloadDao.delete(mDownloadDao.query(task.getTaskId()));
             File temp = new File(task.getSaveDirPath() + task.getFileName());
-            if (temp.exists()) {
-                temp.delete();
-            }
+            if (temp.exists()) temp.delete();
             task.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
         }
     }
 
-    /**
-     * 实时更新manager中的task信息
-     *
-     * @param task task
-     */
-    void updateDownloadTask(DownloadTask task) {
-        if (task != null) {
-            DownloadTask currTask = getDownloadTask(task.getTaskId());
-            if (currTask != null) {
-                mCurrentTaskList.put(task.getTaskId(), task);
-            }
-        }
-    }
 
     /**
      * 获得指定的task
@@ -173,14 +169,14 @@ public class DownloadManager {
      * @param id task id
      * @return task
      */
-    public DownloadTask getDownloadTask(String id) {
+    public DownloadTask getTask(String id) {
         DownloadTask currTask = mCurrentTaskList.get(id);
         if (currTask == null) {
             // 从数据库中取出为完成的task
             DownloadEntity entity = mDownloadDao.query(id);
             if (entity != null) {
                 int status = entity.getDownloadStatus();
-                currTask = parseEntity2Task(entity);
+                currTask = createTaskWithEntity(entity);
                 if (status != DownloadStatus.DOWNLOAD_STATUS_FINISH) {
                     mCurrentTaskList.put(id, currTask);
                 }
@@ -194,11 +190,11 @@ public class DownloadManager {
      *
      * @return 所有的任务
      */
-    public Map<String, DownloadTask> getAllDownloadTasks() {
+    public Map<String, DownloadTask> getTaskList() {
         if (mCurrentTaskList != null && mCurrentTaskList.size() <= 0) {
             List<DownloadEntity> entities = mDownloadDao.queryAll();
             for (DownloadEntity entity : entities) {
-                DownloadTask currTask = parseEntity2Task(entity);
+                DownloadTask currTask = createTaskWithEntity(entity);
                 mCurrentTaskList.put(entity.getDownloadId(), currTask);
             }
         }
@@ -222,7 +218,7 @@ public class DownloadManager {
         }
     }
 
-    private DownloadTask parseEntity2Task(DownloadEntity entity) {
+    private DownloadTask createTaskWithEntity(DownloadEntity entity) {
         if (entity != null) {
             return new DownloadTask.Builder()
                     .setDownloadStatus(entity.getDownloadStatus())
