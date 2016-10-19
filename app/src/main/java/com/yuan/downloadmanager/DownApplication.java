@@ -15,22 +15,6 @@ public class DownApplication extends Application {
     public void onCreate() {
         super.onCreate();
         DownloadManager.getInstance().init(this);
-
-//        File cacheFile = new File(getCacheDir(), "okcache");
-//        Cache cache = new Cache(cacheFile, 100 * 1024 * 1024);// 100mb
-//
-//        // 程序初始化时，初始okhttp配置
-//        OKHttpConfig OKHttpConfig = new OKHttpConfig.Builder()
-//                .setBaseResponseClass(BaseResponse.class)
-//                .setLogLevel(HttpLoggingInterceptor.Level.BODY)// log level
-//                .setConnectTimeout(10) // connect time out
-//                .setReadTimeout(10) // read time out
-//                .setWriteTimeout(10) // write time out
-//                .setCacheTime(1000) // cache time
-//                .setCache(cache) // cache
-//                .build();
-//        OKHttpManager.init(this, OKHttpConfig);
-
     }
 
 }

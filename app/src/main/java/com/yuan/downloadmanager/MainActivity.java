@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             char c = (char) i;
             String s = String.valueOf(c);
             entity.setTitle(s.toUpperCase());
-            entity.setUrl("http://192.168.1.193:8888/test." + s + s + s);
+            entity.setUrl("http://192.168.1.111:8888/test." + s + s + s);
             list.add(entity);
         }
 

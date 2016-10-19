@@ -23,12 +23,12 @@ import butterknife.ButterKnife;
 
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_ERROR_FILE_NOT_FOUND;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_CANCEL;
-import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_CREATE;
+import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_CONNECTING;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_ERROR;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_FINISH;
+import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_INIT;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_PAUSE;
 import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_START;
-import static com.yuan.library.db.download.DownloadStatus.DOWNLOAD_STATUS_WAIT;
 
 /**
  * Created by Yuan on 9/19/16:2:31 PM.
@@ -67,36 +67,41 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         DownloadTask itemTask = mDownloadManager.getTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
 
         if (itemTask == null) {
-            holder.stateButton.setText(R.string.start);
+            holder.downloadButton.setText(R.string.start);
             holder.progressView.setText("0");
             holder.progressBar.setProgress(0);
         } else {
-            int status = itemTask.getDownloadStatus();
+            int status = itemTask.getmDownloadStatus();
             String progress = getDownLoadPercent(itemTask.getCompletedSize(), itemTask.getTotalSize());
             switch (status) {
-                case DOWNLOAD_STATUS_CREATE:
+                case DOWNLOAD_STATUS_INIT:
                     int state = itemTask.isFinish() ? R.string.start : R.string.resume;
-                    holder.stateButton.setText(state);
+                    holder.downloadButton.setText(state);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_WAIT:
-                    holder.stateButton.setText(R.string.wait);
+                case DOWNLOAD_STATUS_CONNECTING:
+                    holder.downloadButton.setText(R.string.connecting);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
                 case DOWNLOAD_STATUS_START:
-                    holder.stateButton.setText(R.string.pause);
+                    holder.downloadButton.setText(R.string.pause);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
                 case DOWNLOAD_STATUS_PAUSE:
-                    holder.stateButton.setText(R.string.resume);
+                    holder.downloadButton.setText(R.string.resume);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
                 case DOWNLOAD_STATUS_FINISH:
-                    holder.stateButton.setText(R.string.delete);
+                    holder.downloadButton.setText(R.string.delete);
+                    holder.progressBar.setProgress(Integer.parseInt(progress));
+                    holder.progressView.setText(progress);
+                    break;
+                case DOWNLOAD_STATUS_ERROR:
+                    holder.downloadButton.setText(R.string.retry);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
@@ -107,27 +112,27 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         }
 
 
-        holder.stateButton.setOnClickListener(new View.OnClickListener() {
+        holder.downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DownloadTask itemTask = mDownloadManager.getTask(String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode()));
 
                 if (itemTask == null) {
-                    itemTask = new DownloadTask.Builder().setId(entity.getUrl().hashCode() + "").setUrl(entity.getUrl()).build();
+                    itemTask = new DownloadTask.Builder().setId(entity.getUrl().hashCode() + "").setUrl(entity.getUrl()).setDownloadStatus(0).setSaveDirPath("").setFileName("").build();
                     responseUIListener(itemTask, holder);
                     mDownloadManager.add(itemTask);
                 } else {
                     responseUIListener(itemTask, holder);
-                    int status = itemTask.getDownloadStatus();
+                    int status = itemTask.getmDownloadStatus();
                     switch (status) {
-                        case DOWNLOAD_STATUS_CREATE:
+                        case DOWNLOAD_STATUS_INIT:
                             mDownloadManager.add(itemTask);
+                            break;
+                        case DOWNLOAD_STATUS_CONNECTING:
+                            mDownloadManager.pause(itemTask);
                             break;
                         case DOWNLOAD_STATUS_START:
                             mDownloadManager.pause(itemTask);
-                            break;
-                        case DOWNLOAD_STATUS_WAIT:
-                            mDownloadManager.cancelWait(itemTask);
                             break;
                         case DOWNLOAD_STATUS_CANCEL:
                             mDownloadManager.add(itemTask);
@@ -148,15 +153,12 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
     }
 
     private String getDownLoadPercent(Long completedSize, Long totalSize) {
-        String baifenbi = "0";// 接受百分比的值
-        double baiy = completedSize * 1.0;
-        double baiz = totalSize * 1.0;
-        if (baiz > 0) {
-            double fen = (baiy / baiz) * 100;
-            DecimalFormat df1 = new DecimalFormat("0");//0.00
-            baifenbi = df1.format(fen);
+        if (totalSize > 0) {
+            double fen = ((double) completedSize / (double) totalSize) * 100;
+            DecimalFormat df1 = new DecimalFormat("0");
+            return df1.format(fen);
         }
-        return baifenbi;
+        return "0";
     }
 
     private void responseUIListener(final DownloadTask itemTask, final CViewHolder holder) {
@@ -164,21 +166,16 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         itemTask.setListener(new DownloadTaskListener() {
 
             @Override
-            public void onCreate(DownloadTask downloadTask) {
-
-            }
-
-            @Override
-            public void onWait(DownloadTask downloadTask) {
+            public void onConnecting(DownloadTask downloadTask) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.wait);
+                    holder.downloadButton.setText(R.string.connecting);
                 }
             }
 
             @Override
             public void onStart(DownloadTask downloadTask, long completedSize, long totalSize, String percent) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.pause);
+                    holder.downloadButton.setText(R.string.pause);
                     holder.progressBar.setProgress(Integer.parseInt(percent));
                     holder.progressView.setText(percent);
                 }
@@ -188,14 +185,14 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             @Override
             public void onPause(DownloadTask downloadTask, long completedSize, long totalSize, String percent) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.resume);
+                    holder.downloadButton.setText(R.string.resume);
                 }
             }
 
             @Override
             public void onCancel(DownloadTask downloadTask) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.start);
+                    holder.downloadButton.setText(R.string.start);
                     holder.progressView.setText("0");
                     holder.progressBar.setProgress(0);
                 }
@@ -204,14 +201,14 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             @Override
             public void onFinish(DownloadTask downloadTask, File file) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.delete);
+                    holder.downloadButton.setText(R.string.delete);
                 }
             }
 
             @Override
             public void onError(DownloadTask downloadTask, int errorCode) {
                 if (holder.itemView.getTag().equals(itemTask.getUrl())) {
-                    holder.stateButton.setText(R.string.failure);
+                    holder.downloadButton.setText(R.string.retry);
                 }
             }
         });
@@ -233,7 +230,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         @BindView(R.id.list_item_progress_text)
         TextView progressView;
         @BindView(R.id.list_item_state_button)
-        Button stateButton;
+        Button downloadButton;
 
         CViewHolder(View itemView) {
             super(itemView);

@@ -22,9 +22,6 @@ public class DownloadEntity {
     // 下载状态
     private Integer downloadStatus;
 
-    public DownloadEntity() {
-
-    }
 
     public DownloadEntity(String downloadId, Long totalSize, Long completedSize, String url, String saveDirPath, String fileName, Integer downloadStatus) {
         this.downloadId = downloadId;
@@ -36,7 +33,7 @@ public class DownloadEntity {
         this.downloadStatus = downloadStatus;
     }
 
-    public DownloadEntity(Builder builder) {
+    private DownloadEntity(Builder builder) {
         this.downloadId = builder.downloadId;
         this.totalSize = builder.totalSize;
         this.completedSize = builder.completedSize;
@@ -50,16 +47,8 @@ public class DownloadEntity {
         return downloadId;
     }
 
-    public void setDownloadId(String downloadId) {
-        this.downloadId = downloadId;
-    }
-
     public Long getTotalSize() {
         return totalSize;
-    }
-
-    public void setTotalSize(Long totalSize) {
-        this.totalSize = totalSize;
     }
 
     public Long getCompletedSize() {
@@ -74,24 +63,13 @@ public class DownloadEntity {
         return url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
     public String getSaveDirPath() {
         return saveDirPath;
     }
 
-    public void setSaveDirPath(String saveDirPath) {
-        this.saveDirPath = saveDirPath;
-    }
-
     public String getFileName() {
         return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public Integer getDownloadStatus() {
@@ -118,37 +96,37 @@ public class DownloadEntity {
         // 下载状态
         private Integer downloadStatus;
 
-        public Builder downloadId(String downloadId) {
+        Builder downloadId(String downloadId) {
             this.downloadId = downloadId;
             return this;
         }
 
-        public Builder totalSize(long totalSize) {
+        Builder totalSize(long totalSize) {
             this.totalSize = totalSize;
             return this;
         }
 
-        public Builder completedSize(long completedSize) {
+        Builder completedSize(long completedSize) {
             this.completedSize = completedSize;
             return this;
         }
 
-        public Builder url(String url) {
+        Builder url(String url) {
             this.url = url;
             return this;
         }
 
-        public Builder saveDirPath(String saveDirPath) {
+        Builder saveDirPath(String saveDirPath) {
             this.saveDirPath = saveDirPath;
             return this;
         }
 
-        public Builder fileName(String fileName) {
+        Builder fileName(String fileName) {
             this.fileName = fileName;
             return this;
         }
 
-        public Builder downloadStatus(int downloadStatus) {
+        Builder downloadStatus(int downloadStatus) {
             this.downloadStatus = downloadStatus;
             return this;
         }

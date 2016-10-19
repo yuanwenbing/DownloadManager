@@ -63,7 +63,7 @@ public class DownloadManager {
     }
 
     /**
-     * 初始化okhttp
+     * 初始化OkHttp
      */
     private void initOkHttpClient() {
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
@@ -77,37 +77,17 @@ public class DownloadManager {
      * 添加下载任务
      */
     public void add(DownloadTask task) {
-        if (task != null && !isDownloading(task)) {
+        // 如果任务不等于空，且任务没有正在下载
+        if (task != null && task.getmDownloadStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
-            create(task);
+            task.create();
             mCurrentTaskList.put(task.getTaskId(), task);
-
-
+            // 如果队列中没有当前队列，就直接执行
             if (!mQueue.contains(task)) {
                 mExecutor.execute(task);
             }
 
-            if (mQueue.contains(task)) {
-                task.waits();
-            }
-
-        }
-    }
-
-
-    private boolean isDownloading(DownloadTask task) {
-        if (task != null) {
-            if (task.getDownloadStatus() == DownloadStatus.DOWNLOAD_STATUS_START) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void create(DownloadTask task) {
-        if (task != null) {
-            task.create();
         }
     }
 
@@ -130,13 +110,6 @@ public class DownloadManager {
         }
     }
 
-    public void cancelWait(DownloadTask task) {
-        if (task != null) {
-            removeFromQueue(task);
-            task.cancel();
-        }
-    }
-
     private void removeFromQueue(DownloadTask task) {
         if (mQueue.contains(task)) {
             try {
@@ -156,9 +129,9 @@ public class DownloadManager {
             mCurrentTaskList.remove(task.getTaskId());
             task.cancel();
             mDownloadDao.delete(mDownloadDao.query(task.getTaskId()));
-            File temp = new File(task.getSaveDirPath() + task.getFileName());
+            File temp = new File(task.getSaveDirPath() + task.getmFileName());
             if (temp.exists()) temp.delete();
-            task.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
+            task.setmDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
         }
     }
 
