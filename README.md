@@ -8,7 +8,7 @@
 
 ### Screenshot
 
-![Alt text](/path/to/img.jpg "Optional title")
+![Alt text](https://github.com/yuanwenbing/DownloadManager/blob/master/captures/2016-10-19%2011_43_33.gif "Optional title")
 
 ### Gradle
 
