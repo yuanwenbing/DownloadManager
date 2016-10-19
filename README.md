@@ -4,7 +4,7 @@
 ### Introduce 
 基于OkHttp实现的下载管理，支持多线程、断点续传等功能。
 
-[Download demo apk](href "title")
+[Download demo apk](href "https://github.com/yuanwenbing/DownloadManager/blob/master/apk/app-debug.apk")
 
 ### Screenshot
 
@@ -17,6 +17,9 @@
 
 
 ### Contacts
+mail:wenbing1007@163.com
+
+qq:11026979
 
 
 
