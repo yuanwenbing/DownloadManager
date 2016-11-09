@@ -14,16 +14,22 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
 public class DownloadManager {
+
     // manager instance
     private static DownloadManager mInstance;
+
     // 队列
     private BlockingQueue<Runnable> mQueue;
+
     // download database dao
     private DownloadDao mDownloadDao;
+
     // ok http
     private OkHttpClient mClient;
+
     // ThreadPoolExecutor
     private ThreadPoolExecutor mExecutor;
+
     //
     private Map<String, DownloadTask> mCurrentTaskList;
 
@@ -44,14 +50,24 @@ public class DownloadManager {
     }
 
 
+    /**
+     * 默认只能并发下载1个
+     *
+     * @param context Context
+     */
     public void init(Context context) {
+        init(context, 1);
+    }
+
+    public void init(Context context, int downloadSize) {
         // init net
         initOkHttpClient();
         // init db
         mDownloadDao = new DownloadDao(context);
         initDBState();
         // init thread pool
-        mExecutor = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        int size = downloadSize < 1 ? 1 : downloadSize;
+        mExecutor = new ThreadPoolExecutor(3, size, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mExecutor.prestartAllCoreThreads();
         mCurrentTaskList = new HashMap<>();
 
@@ -63,11 +79,11 @@ public class DownloadManager {
      * 初始化OkHttp
      */
     private void initOkHttpClient() {
-        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
-        okBuilder.connectTimeout(10, TimeUnit.SECONDS);
-        okBuilder.readTimeout(10, TimeUnit.SECONDS);
-        okBuilder.writeTimeout(10, TimeUnit.SECONDS);
-        mClient = okBuilder.build();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(10, TimeUnit.SECONDS);
+        builder.readTimeout(10, TimeUnit.SECONDS);
+        builder.writeTimeout(10, TimeUnit.SECONDS);
+        mClient = builder.build();
     }
 
     /**
@@ -137,6 +153,7 @@ public class DownloadManager {
      * 获得指定的task
      *
      * @param id task id
+     *
      * @return task
      */
     public DownloadTask getTask(String id) {

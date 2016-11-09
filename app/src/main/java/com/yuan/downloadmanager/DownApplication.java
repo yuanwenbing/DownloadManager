@@ -14,7 +14,7 @@ public class DownApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        DownloadManager.getInstance().init(this);
+        DownloadManager.getInstance().init(this, 3);
     }
 
 }
