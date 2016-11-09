@@ -91,7 +91,6 @@ public class DownloadTask implements Runnable {
 
 
     private DownloadTask(Builder builder) {
-        this.mClient = builder.client;
         this.mTaskId = builder.id;
         this.mUrl = builder.url;
         this.mFilePath = builder.saveDirPath;
@@ -325,8 +324,6 @@ public class DownloadTask implements Runnable {
         private long totalSize;
         private long completedSize;
 
-        private OkHttpClient client = new OkHttpClient();
-
         /**
          * 作为下载task开始、删除、停止的key值，如果为空则默认是url
          */
@@ -380,11 +377,6 @@ public class DownloadTask implements Runnable {
          */
         public Builder setCompletedSize(long completedSize) {
             this.completedSize = completedSize;
-            return this;
-        }
-
-        public Builder setClient(OkHttpClient client) {
-            this.client = client;
             return this;
         }
 
