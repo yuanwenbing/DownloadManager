@@ -96,37 +96,37 @@ public class DownloadEntity {
         // 下载状态
         private Integer downloadStatus;
 
-        Builder downloadId(String downloadId) {
+        public Builder downloadId(String downloadId) {
             this.downloadId = downloadId;
             return this;
         }
 
-        Builder totalSize(long totalSize) {
+        public Builder totalSize(long totalSize) {
             this.totalSize = totalSize;
             return this;
         }
 
-        Builder completedSize(long completedSize) {
+        public Builder completedSize(long completedSize) {
             this.completedSize = completedSize;
             return this;
         }
 
-        Builder url(String url) {
+        public Builder url(String url) {
             this.url = url;
             return this;
         }
 
-        Builder saveDirPath(String saveDirPath) {
+        public Builder saveDirPath(String saveDirPath) {
             this.saveDirPath = saveDirPath;
             return this;
         }
 
-        Builder fileName(String fileName) {
+        public Builder fileName(String fileName) {
             this.fileName = fileName;
             return this;
         }
 
-        Builder downloadStatus(int downloadStatus) {
+        public Builder downloadStatus(int downloadStatus) {
             this.downloadStatus = downloadStatus;
             return this;
         }
