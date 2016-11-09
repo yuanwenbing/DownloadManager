@@ -8,8 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yuan.library.BuildConfig;
-import com.yuan.library.db.DownloadDao;
-import com.yuan.library.db.DownloadEntity;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -93,7 +91,7 @@ public class DownloadTask implements Runnable {
 
 
     private DownloadTask(Builder builder) {
-        mClient = new OkHttpClient();
+        this.mClient = builder.client;
         this.mTaskId = builder.id;
         this.mUrl = builder.url;
         this.mFilePath = builder.saveDirPath;
@@ -212,7 +210,7 @@ public class DownloadTask implements Runnable {
     }
 
     void create() {
-        setmDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CONNECTING);
+        setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CONNECTING);
         handler.sendEmptyMessage(DownloadStatus.DOWNLOAD_STATUS_CONNECTING);
     }
 
@@ -286,11 +284,11 @@ public class DownloadTask implements Runnable {
         mListener = listener;
     }
 
-    public int getmDownloadStatus() {
+    public int getDownloadStatus() {
         return mDownloadStatus;
     }
 
-    public void setmDownloadStatus(int mDownloadStatus) {
+    public void setDownloadStatus(int mDownloadStatus) {
         this.mDownloadStatus = mDownloadStatus;
     }
 
@@ -314,7 +312,7 @@ public class DownloadTask implements Runnable {
         return mFilePath;
     }
 
-    public String getmFileName() {
+    public String getFileName() {
         return mFileName;
     }
 
@@ -326,6 +324,8 @@ public class DownloadTask implements Runnable {
         private int downloadStatus;
         private long totalSize;
         private long completedSize;
+
+        private OkHttpClient client = new OkHttpClient();
 
         /**
          * 作为下载task开始、删除、停止的key值，如果为空则默认是url
@@ -380,6 +380,11 @@ public class DownloadTask implements Runnable {
          */
         public Builder setCompletedSize(long completedSize) {
             this.completedSize = completedSize;
+            return this;
+        }
+
+        public Builder setClient(OkHttpClient client) {
+            this.client = client;
             return this;
         }
 

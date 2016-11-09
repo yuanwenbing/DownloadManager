@@ -2,9 +2,6 @@ package com.yuan.library.db.download;
 
 import android.content.Context;
 
-import com.yuan.library.db.DownloadDao;
-import com.yuan.library.db.DownloadEntity;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +75,7 @@ public class DownloadManager {
      */
     public void add(DownloadTask task) {
         // 如果任务不等于空，且任务没有正在下载
-        if (task != null && task.getmDownloadStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
+        if (task != null && task.getDownloadStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
             task.create();
@@ -129,9 +126,9 @@ public class DownloadManager {
             mCurrentTaskList.remove(task.getTaskId());
             task.cancel();
             mDownloadDao.delete(mDownloadDao.query(task.getTaskId()));
-            File temp = new File(task.getSaveDirPath() + task.getmFileName());
+            File temp = new File(task.getSaveDirPath() + task.getFileName());
             if (temp.exists()) temp.delete();
-            task.setmDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
+            task.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
         }
     }
 

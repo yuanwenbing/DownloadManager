@@ -71,7 +71,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             holder.progressView.setText("0");
             holder.progressBar.setProgress(0);
         } else {
-            int status = itemTask.getmDownloadStatus();
+            int status = itemTask.getDownloadStatus();
             String progress = getDownLoadPercent(itemTask.getCompletedSize(), itemTask.getTotalSize());
             switch (status) {
                 case DOWNLOAD_STATUS_INIT:
@@ -123,7 +123,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                     mDownloadManager.add(itemTask);
                 } else {
                     responseUIListener(itemTask, holder);
-                    int status = itemTask.getmDownloadStatus();
+                    int status = itemTask.getDownloadStatus();
                     switch (status) {
                         case DOWNLOAD_STATUS_INIT:
                             mDownloadManager.add(itemTask);

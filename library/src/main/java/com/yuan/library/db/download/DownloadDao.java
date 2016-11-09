@@ -1,4 +1,4 @@
-package com.yuan.library.db;
+package com.yuan.library.db.download;
 
 import android.content.ContentValues;
 import android.content.Context;
