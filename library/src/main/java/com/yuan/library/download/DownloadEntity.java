@@ -1,4 +1,4 @@
-package com.yuan.library.db.download;
+package com.yuan.library.download;
 
 /**
  * Created by Yuan on 8/17/16.

@@ -1,9 +1,11 @@
-package com.yuan.library.db.download;
+package com.yuan.library.db;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.yuan.library.download.DownloadEntity;
 
 import java.util.ArrayList;
 import java.util.List;

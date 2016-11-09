@@ -1,9 +1,9 @@
-package com.yuan.library.db.download;
+package com.yuan.library.download;
 
 /**
  * Created by Yuan on 27/09/2016:10:48 AM.
  * <p/>
- * Description:com.yuan.library.db.download.DownloadStatus
+ * Description:com.yuan.library.download.DownloadStatus
  */
 
 public class DownloadStatus {

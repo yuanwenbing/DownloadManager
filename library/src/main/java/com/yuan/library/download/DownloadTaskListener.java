@@ -1,11 +1,11 @@
-package com.yuan.library.db.download;
+package com.yuan.library.download;
 
 import java.io.File;
 
 /**
  * Created by Yuan on 27/09/2016:10:47 AM.
  * <p/>
- * Description:com.yuan.library.db.download.DownloadTaskListener
+ * Description:com.yuan.library.download.DownloadTaskListener
  */
 
 public interface DownloadTaskListener {

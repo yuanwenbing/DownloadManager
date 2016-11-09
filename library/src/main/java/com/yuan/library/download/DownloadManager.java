@@ -1,6 +1,8 @@
-package com.yuan.library.db.download;
+package com.yuan.library.download;
 
 import android.content.Context;
+
+import com.yuan.library.db.DownloadDao;
 
 import java.io.File;
 import java.util.HashMap;
