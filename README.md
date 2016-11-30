@@ -7,8 +7,7 @@
 [Download demo apk](https://github.com/yuanwenbing/DownloadManager/raw/master/apk/app-debug.apk)
 
 # Screenshot
-![Alt text](https://raw/yuanwenbing/DownloadManager/blob/master/captures/2016-10-19%2011_43_33.gif "Optional title")
-
+![Alt text](https://raw.githubusercontent.com/yuanwenbing/DownloadManager/master/captures/2016-10-19%2011_43_33.gif "Optional title")
 # Gradle
 
 ```
