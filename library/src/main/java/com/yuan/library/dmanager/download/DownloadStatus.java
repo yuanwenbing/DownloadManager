@@ -1,9 +1,9 @@
-package com.yuan.library.download;
+package com.yuan.library.dmanager.download;
 
 /**
  * Created by Yuan on 27/09/2016:10:48 AM.
  * <p/>
- * Description:com.yuan.library.download.DownloadStatus
+ * Description:com.yuan.library.dmanager.download.DownloadStatus
  */
 
 public class DownloadStatus {

@@ -1,4 +1,4 @@
-package com.yuan.library.download;
+package com.yuan.library.dmanager.download;
 
 /**
  * Created by Yuan on 8/17/16.

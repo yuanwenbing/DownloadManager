@@ -1,4 +1,4 @@
-package com.yuan.library.db;
+package com.yuan.library.dmanager.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

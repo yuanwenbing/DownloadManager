@@ -1,11 +1,11 @@
-package com.yuan.library.download;
+package com.yuan.library.dmanager.download;
 
 import java.io.File;
 
 /**
  * Created by Yuan on 27/09/2016:10:47 AM.
  * <p/>
- * Description:com.yuan.library.download.DownloadTaskListener
+ * Description:com.yuan.library.dmanager.download.DownloadTaskListener
  */
 
 public interface DownloadTaskListener {

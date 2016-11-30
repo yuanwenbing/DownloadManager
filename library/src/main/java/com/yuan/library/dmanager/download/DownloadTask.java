@@ -1,4 +1,4 @@
-package com.yuan.library.download;
+package com.yuan.library.dmanager.download;
 
 import android.os.Environment;
 import android.os.Handler;
@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yuan.library.BuildConfig;
-import com.yuan.library.db.DownloadDao;
+import com.yuan.library.dmanager.db.DownloadDao;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -27,7 +27,7 @@ import okhttp3.ResponseBody;
 /**
  * Created by Yuan on 27/09/2016:10:44 AM.
  * <p/>
- * Description:com.yuan.library.download.DownloadTask
+ * Description:com.yuan.library.dmanager.download.DownloadTask
  */
 
 public class DownloadTask implements Runnable {

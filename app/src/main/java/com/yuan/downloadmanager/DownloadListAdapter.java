@@ -10,9 +10,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.yuan.library.download.DownloadManager;
-import com.yuan.library.download.DownloadTask;
-import com.yuan.library.download.DownloadTaskListener;
+import com.yuan.library.dmanager.download.DownloadManager;
+import com.yuan.library.dmanager.download.DownloadTask;
+import com.yuan.library.dmanager.download.DownloadTaskListener;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -21,14 +21,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_ERROR_FILE_NOT_FOUND;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_CANCEL;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_CONNECTING;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_ERROR;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_FINISH;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_INIT;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_PAUSE;
-import static com.yuan.library.download.DownloadStatus.DOWNLOAD_STATUS_START;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_ERROR_FILE_NOT_FOUND;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_CANCEL;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_CONNECTING;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_ERROR;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_FINISH;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_INIT;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_PAUSE;
+import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_START;
 
 /**
  * Created by Yuan on 9/19/16:2:31 PM.
