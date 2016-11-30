@@ -66,23 +66,18 @@ public class DownloadTask implements Runnable {
                 case DownloadStatus.DOWNLOAD_STATUS_CONNECTING:
                     mListener.onConnecting(DownloadTask.this);
                     break;
-                // 失败
                 case DownloadStatus.DOWNLOAD_STATUS_ERROR:
                     mListener.onError(DownloadTask.this, mErrorCode);
                     break;
-                // 开始
                 case DownloadStatus.DOWNLOAD_STATUS_START:
                     mListener.onStart(DownloadTask.this, mCompletedSize, mTotalSize, getDownLoadPercent());
                     break;
-                // 取消
                 case DownloadStatus.DOWNLOAD_STATUS_CANCEL:
                     mListener.onCancel(DownloadTask.this);
                     break;
-                // 完成
                 case DownloadStatus.DOWNLOAD_STATUS_FINISH:
                     mListener.onFinish(DownloadTask.this, new File(getFilePath()));
                     break;
-                // 停止
                 case DownloadStatus.DOWNLOAD_STATUS_PAUSE:
                     mListener.onPause(DownloadTask.this, mCompletedSize, mTotalSize, getDownLoadPercent());
                     break;
@@ -106,23 +101,21 @@ public class DownloadTask implements Runnable {
         InputStream inputStream = null;
         BufferedInputStream bis = null;
         try {
-            // 数据库中加载数据
+            // db query
             dbEntity = mDownloadDao.query(mTaskId);
             if (dbEntity != null) {
                 mCompletedSize = dbEntity.getCompletedSize();
                 mTotalSize = dbEntity.getTotalSize();
             }
 
-            // 获得文件路径
             String filepath = getFilePath();
-            // 获得下载保存文件
             mDownLoadFile = new RandomAccessFile(filepath, "rwd");
 
             long fileLength = mDownLoadFile.length();
             if (fileLength < mCompletedSize) {
                 mCompletedSize = mDownLoadFile.length();
             }
-            // 下载完成，更新数据库数据
+            // if finish update status
             if (fileLength != 0 && mTotalSize <= fileLength) {
                 mDownloadStatus = DownloadStatus.DOWNLOAD_STATUS_FINISH;
                 mTotalSize = mCompletedSize = fileLength;
@@ -131,9 +124,8 @@ public class DownloadTask implements Runnable {
                 return;
             }
 
-            // 开始下载
+            // start download
             Request request = new Request.Builder().url(mUrl).header("RANGE", "bytes=" + mCompletedSize + "-").build();
-            // 文件跳转到指定位置开始写入
             mDownLoadFile.seek(mCompletedSize);
             Response response = mClient.newCall(request).execute();
             ResponseBody responseBody = response.body();
@@ -144,13 +136,11 @@ public class DownloadTask implements Runnable {
                 }
 
                 double updateSize = mTotalSize / 100;
-                // 获得文件流
                 inputStream = responseBody.byteStream();
                 bis = new BufferedInputStream(inputStream);
                 byte[] buffer = new byte[2 * 1024];
                 int length;
                 int buffOffset = 0;
-                // 开始下载数据库中插入下载信息
                 if (dbEntity == null) {
                     dbEntity = new DownloadEntity(mTaskId, mTotalSize, 0L, mUrl, mFilePath, mFileName, mDownloadStatus);
                     mDownloadDao.insert(dbEntity);
@@ -236,14 +226,14 @@ public class DownloadTask implements Runnable {
     }
 
     private String getFilePath() {
-        // 默认名字
+        // default name , the name is split from url
         if (TextUtils.isEmpty(mFileName)) {
             mFileName = getFileNameFromUrl(mUrl);
         }
 
-        // 默认路径
+        // the default path
         if (TextUtils.isEmpty(mFilePath)) {
-            mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/yuan/download/";
+            mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/okhttp/download/";
         }
 
         File file = new File(mFilePath);
@@ -326,7 +316,7 @@ public class DownloadTask implements Runnable {
         private long completedSize;
 
         /**
-         * 作为下载task开始、删除、停止的key值，如果为空则默认是url
+         * task id
          */
         public Builder setId(String id) {
             this.id = id;
@@ -334,7 +324,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 下载url（not null）
+         * url
          */
         public Builder setUrl(String url) {
             this.url = url;
@@ -342,7 +332,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 设置保存地址
+         * path
          */
         public Builder setSaveDirPath(String saveDirPath) {
             this.saveDirPath = saveDirPath;
@@ -350,7 +340,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 设置下载状态
+         * state
          */
         public Builder setDownloadStatus(int downloadStatus) {
             this.downloadStatus = downloadStatus;
@@ -358,7 +348,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 设置文件名
+         * file name
          */
         public Builder setFileName(String fileName) {
             this.fileName = fileName;
@@ -366,7 +356,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 文件总大小
+         * file length
          */
         public Builder setTotalSize(long totalSize) {
             this.totalSize = totalSize;
@@ -374,7 +364,7 @@ public class DownloadTask implements Runnable {
         }
 
         /**
-         * 已经下载大小
+         * file complete length
          */
         public Builder setCompletedSize(long completedSize) {
             this.completedSize = completedSize;

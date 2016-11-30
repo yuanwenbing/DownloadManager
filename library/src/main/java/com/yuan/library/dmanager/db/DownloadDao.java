@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Yuan on 8/17/16.
  * <p>
- * 下载状态Dao
+ * download database dao
  */
 
 public class DownloadDao {

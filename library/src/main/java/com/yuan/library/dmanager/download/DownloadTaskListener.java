@@ -11,32 +11,32 @@ import java.io.File;
 public interface DownloadTaskListener {
 
     /**
-     * 连接中
+     * connecting
      */
     void onConnecting(DownloadTask downloadTask);
 
     /**
-     * 下载中
+     * downloading
      */
     void onStart(DownloadTask downloadTask, long completedSize, long totalSize, String percent);
 
     /**
-     * 下载暂停
+     * pause
      */
     void onPause(DownloadTask downloadTask, long completedSize, long totalSize, String percent);
 
     /**
-     * 下载取消
+     * cancel
      */
     void onCancel(DownloadTask downloadTask);
 
     /**
-     * 下载成功
+     * success
      */
     void onFinish(DownloadTask downloadTask, File file);
 
     /**
-     * 下载失败
+     * failure
      */
     void onError(DownloadTask downloadTask, int errorCode);
 

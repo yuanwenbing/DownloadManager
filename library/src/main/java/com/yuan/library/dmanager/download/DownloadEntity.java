@@ -3,23 +3,16 @@ package com.yuan.library.dmanager.download;
 /**
  * Created by Yuan on 8/17/16.
  * <p>
- * 下载状态
+ * download status
  */
 
 public class DownloadEntity {
-    // 下载id
     private String downloadId;
-    // 总大小
     private Long totalSize;
-    // 已下载大小
     private Long completedSize;
-    // 下载Url
     private String url;
-    // 存储路径
     private String saveDirPath;
-    // 文件名字
     private String fileName;
-    // 下载状态
     private Integer downloadStatus;
 
 
@@ -81,19 +74,19 @@ public class DownloadEntity {
     }
 
     public static class Builder {
-        // 下载id
+        // file id
         private String downloadId;
-        // 总大小
+        // file length
         private Long totalSize;
-        // 已下载大小
+        // file complete length
         private Long completedSize;
-        // 下载Url
+        // file url
         private String url;
-        // 存储路径
+        // file save path
         private String saveDirPath;
-        // 文件名字
+        // file name
         private String fileName;
-        // 下载状态
+        // file download status
         private Integer downloadStatus;
 
         public Builder downloadId(String downloadId) {

@@ -20,7 +20,7 @@ public class DownloadManager {
     // manager instance
     private static DownloadManager mInstance;
 
-    // 队列
+    // quess
     private BlockingQueue<Runnable> mQueue;
 
     // download database dao
@@ -39,11 +39,6 @@ public class DownloadManager {
 
     }
 
-    /**
-     * 获得当前对象实例
-     *
-     * @return 当前实例对象
-     */
     public static synchronized DownloadManager getInstance() {
         if (mInstance == null) {
             mInstance = new DownloadManager();
@@ -53,7 +48,7 @@ public class DownloadManager {
 
 
     /**
-     * 默认只能并发下载1个
+     * default 1
      *
      * @param context Context
      */
@@ -78,7 +73,7 @@ public class DownloadManager {
     }
 
     /**
-     * 初始化OkHttp
+     * init okhttp
      */
     private void initOkHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -89,16 +84,14 @@ public class DownloadManager {
     }
 
     /**
-     * 添加下载任务
+     * add task
      */
     public void add(DownloadTask task) {
-        // 如果任务不等于空，且任务没有正在下载
         if (task != null && task.getDownloadStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
             task.create();
             mCurrentTaskList.put(task.getTaskId(), task);
-            // 如果队列中没有当前队列，就直接执行
             if (!mQueue.contains(task)) {
                 mExecutor.execute(task);
             }
@@ -107,7 +100,7 @@ public class DownloadManager {
     }
 
     /**
-     * 暂停下载任务
+     * pause task
      */
     public void pause(DownloadTask task) {
         if (task != null) {
@@ -117,7 +110,7 @@ public class DownloadManager {
     }
 
     /**
-     * 重新开始已经暂停的下载任务
+     * resume task
      */
     public void resume(DownloadTask task) {
         if (task != null) {
@@ -137,7 +130,7 @@ public class DownloadManager {
     }
 
     /**
-     * 取消下载任务(同时会删除已经下载的文件，和清空数据库缓存)
+     * cancel task
      */
     public void cancel(DownloadTask task) {
         if (task != null) {
@@ -152,16 +145,11 @@ public class DownloadManager {
 
 
     /**
-     * 获得指定的task
-     *
-     * @param id task id
-     *
      * @return task
      */
     public DownloadTask getTask(String id) {
         DownloadTask currTask = mCurrentTaskList.get(id);
         if (currTask == null) {
-            // 从数据库中取出为完成的task
             DownloadEntity entity = mDownloadDao.query(id);
             if (entity != null) {
                 int status = entity.getDownloadStatus();
@@ -175,9 +163,7 @@ public class DownloadManager {
     }
 
     /**
-     * 获得所有的task
-     *
-     * @return 所有的任务
+     * @return all tasks
      */
     public Map<String, DownloadTask> getTaskList() {
         if (mCurrentTaskList != null && mCurrentTaskList.size() <= 0) {
@@ -191,10 +177,6 @@ public class DownloadManager {
         return mCurrentTaskList;
     }
 
-    /**
-     * 主要做一些判断,比如正在下载过程中程序突然终止,
-     * 而一些状态来来得及存储,比如正在下载的状态,没有及时变为暂停状态。
-     */
     private void initDBState() {
         List<DownloadEntity> entities = mDownloadDao.queryAll();
         for (DownloadEntity entity : entities) {
