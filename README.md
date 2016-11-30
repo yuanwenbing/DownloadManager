@@ -3,17 +3,20 @@
 # Introduce 
 基于OkHttp实现的下载管理，支持多线程、断点续传等功能，Demo演示用的是RecyclerView，在Application里可设置任务并发等。
 
+
 # Demo
 [Download demo apk](https://github.com/yuanwenbing/DownloadManager/raw/master/apk/app-debug.apk)
 
+
 # Screenshot
 ![Alt text](https://raw.githubusercontent.com/yuanwenbing/DownloadManager/master/captures/2016-10-19%2011_43_33.gif "Optional title")
-# Gradle
+# Use
+## Gradle
 
 ```
 compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.0.2'
 ```
-# Maven
+## Maven
 
 ```
 <dependency>
@@ -25,7 +28,7 @@ compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.0.2'
 ```
 
 
-# Use
+# Code
 ```
 // 在Application初始化
 DownloadManager.getInstance().init(this, 3);
