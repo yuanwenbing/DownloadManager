@@ -1,7 +1,8 @@
 # DownloadManager
 
 # Introduce 
-基于OkHttp实现的下载管理，支持多线程、断点续传等功能，Demo演示用的是RecyclerView，在Application里可设置任务并发等。
+1、基于OkHttp实现的下载管理，支持多线程、断点续传等功能，Demo演示用的是RecyclerView，在Application里可设置任务并发等。
+2、实现时基本无别的臃肿代码，可以方便修改使用。
 
 
 # Demo
@@ -39,7 +40,7 @@ DownloadManager.getInstance().add(itemTask);
 ```
 
 # Remark
-由于demo中下载地址，是在本机上搭的服务器，所以可能demo不能下载。如需要下载测试工，请换成可用的地址。
+由于demo中下载地址，是在本机上搭的服务器，所以点击下载按钮不能下载。如果demo中的下载测试，请在MainActivity的getMockData方法中换成可用的地址。
 # Contacts
 mail:wenbing1007@163.com
 
