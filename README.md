@@ -38,6 +38,8 @@ DownloadManager.getInstance().add(itemTask);
 
 ```
 
+# Remark
+由于demo中下载地址，是在本机上搭的服务器，所以可能demo不能下载。如需要下载测试工，请换成可用的地址。
 # Contacts
 mail:wenbing1007@163.com
 
