@@ -4,10 +4,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.SoundEffectConstants;
 
 import com.yuan.library.BuildConfig;
 import com.yuan.library.dmanager.db.DownloadDao;
+import com.yuan.library.dmanager.utils.Constants;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,10 +37,10 @@ public class DownloadManager {
     // ThreadPoolExecutor
     private ThreadPoolExecutor mExecutor;
 
+    // the thread count
+    private int mThreadCount = 1;
 
-    private int mMaximumPoolSize = 1;
-
-    //
+    // task list
     private Map<String, DownloadTask> mCurrentTaskList;
 
     private DownloadManager() {
@@ -54,48 +54,63 @@ public class DownloadManager {
         return mInstance;
     }
 
-
     /**
-     * default 1
-     *
-     * @param context Context
+     * @param context Application
      */
-    public void init(Context context) {
-        init(context, 1);
+    public void init(@NonNull Context context) {
+        init(context, getAppropriateThreadCount());
     }
 
-    public void init(Context context, int downloadSize) {
-        initOkHttpClient();
+    /**
+     * @param context     Application
+     * @param threadCount the max download count
+     */
+    public void init(@NonNull Context context, int threadCount) {
+        init(context, threadCount, getOkHttpClient());
+    }
+
+    /**
+     * @param context     Application
+     * @param threadCount the max download count
+     * @param client      okhttp client
+     */
+
+    public void init(@NonNull Context context, int threadCount, @NonNull OkHttpClient client) {
         mDownloadDao = new DownloadDao(context);
-        initDBState();
-        int size = downloadSize < 1 ? 1 : downloadSize;
-        mMaximumPoolSize = size;
-        mExecutor = new ThreadPoolExecutor(size, size, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        recoveryTaskState();
+        mClient = client;
+        mThreadCount = threadCount < 1 ? 1 : threadCount <= Constants.MAX_THREAD_COUNT ? threadCount : Constants.MAX_THREAD_COUNT;
+        mExecutor = new ThreadPoolExecutor(mThreadCount, mThreadCount, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mExecutor.prestartAllCoreThreads();
         mCurrentTaskList = new HashMap<>();
         mQueue = mExecutor.getQueue();
 
     }
 
+
     /**
-     * init okhttp
+     * generate default client
      */
-    private void initOkHttpClient() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(10, TimeUnit.SECONDS);
-        builder.readTimeout(10, TimeUnit.SECONDS);
-        builder.writeTimeout(10, TimeUnit.SECONDS);
-        mClient = builder.build();
+    private OkHttpClient getOkHttpClient() {
+        return new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).build();
+    }
+
+
+    /**
+     * @return generate the appropriate thread count.
+     */
+    private int getAppropriateThreadCount() {
+        return Runtime.getRuntime().availableProcessors() * 2 + 1;
     }
 
     /**
-     * addTask task
+     * add task
      */
     public void addTask(@NonNull DownloadTask task) {
 
         TaskEntity taskEntity = task.getTaskEntity();
 
-        if (taskEntity != null && taskEntity.getTaskStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
+        if (taskEntity != null && taskEntity.getTaskStatus() != TaskStatus.TASK_STATUS_START) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
             mCurrentTaskList.put(taskEntity.getTaskId(), task);
@@ -103,11 +118,9 @@ public class DownloadManager {
                 mExecutor.execute(task);
             }
 
-            if (mExecutor.getTaskCount() > mMaximumPoolSize) {
+            if (mExecutor.getTaskCount() > mThreadCount) {
                 task.queue();
             }
-
-
         }
     }
 
@@ -167,13 +180,14 @@ public class DownloadManager {
             if (entity != null) {
                 int status = entity.getTaskStatus();
                 currTask = new DownloadTask(entity);
-                if (status != DownloadStatus.DOWNLOAD_STATUS_FINISH) {
+                if (status != TaskStatus.TASK_STATUS_FINISH) {
                     mCurrentTaskList.put(id, currTask);
                 }
             }
         }
         return currTask;
     }
+
 
     public boolean isPauseTask(String id) {
         TaskEntity entity = mDownloadDao.query(id);
@@ -198,13 +212,13 @@ public class DownloadManager {
         return false;
     }
 
-    private void initDBState() {
+    private void recoveryTaskState() {
         List<TaskEntity> entities = mDownloadDao.queryAll();
         for (TaskEntity entity : entities) {
             long completedSize = entity.getCompletedSize();
             long totalSize = entity.getTotalSize();
-            if (completedSize > 0 && completedSize != totalSize && entity.getTaskStatus() == DownloadStatus.DOWNLOAD_STATUS_START) {
-                entity.setTaskStatus(DownloadStatus.DOWNLOAD_STATUS_PAUSE);
+            if (completedSize > 0 && completedSize != totalSize && entity.getTaskStatus() != TaskStatus.TASK_STATUS_PAUSE) {
+                entity.setTaskStatus(TaskStatus.TASK_STATUS_PAUSE);
             }
             mDownloadDao.update(entity);
         }

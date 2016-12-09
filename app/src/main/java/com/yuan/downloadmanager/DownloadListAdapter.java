@@ -3,7 +3,6 @@ package com.yuan.downloadmanager;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,15 +22,15 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_CANCEL;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_CONNECTING;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_REQUEST_ERROR;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_FINISH;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_INIT;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_PAUSE;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_QUEUE;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_START;
-import static com.yuan.library.dmanager.download.DownloadStatus.DOWNLOAD_STATUS_STORAGE_ERROR;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_CANCEL;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_CONNECTING;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_REQUEST_ERROR;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_FINISH;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_INIT;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_PAUSE;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_QUEUE;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_START;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_STORAGE_ERROR;
 
 /**
  * Created by Yuan on 9/19/16:2:31 PM.
@@ -79,43 +78,43 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
             int status = taskEntity.getTaskStatus();
             String progress = getPercent(taskEntity.getCompletedSize(), taskEntity.getTotalSize());
             switch (status) {
-                case DOWNLOAD_STATUS_INIT:
+                case TASK_STATUS_INIT:
                     boolean isPause = mDownloadManager.isPauseTask(taskEntity.getTaskId());
                     boolean isFinish = mDownloadManager.isFinishTask(taskEntity.getTaskId());
                     holder.downloadButton.setText(isFinish ? R.string.delete : !isPause ? R.string.start : R.string.resume);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_QUEUE:
+                case TASK_STATUS_QUEUE:
                     holder.downloadButton.setText(R.string.queue);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_CONNECTING:
+                case TASK_STATUS_CONNECTING:
                     holder.downloadButton.setText(R.string.connecting);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_START:
+                case TASK_STATUS_START:
                     holder.downloadButton.setText(R.string.pause);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_PAUSE:
+                case TASK_STATUS_PAUSE:
                     holder.downloadButton.setText(R.string.resume);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_FINISH:
+                case TASK_STATUS_FINISH:
                     holder.downloadButton.setText(R.string.delete);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case DOWNLOAD_STATUS_REQUEST_ERROR:
+                case TASK_STATUS_REQUEST_ERROR:
                     holder.downloadButton.setText(R.string.retry);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
-                case DOWNLOAD_STATUS_STORAGE_ERROR:
+                case TASK_STATUS_STORAGE_ERROR:
                     holder.downloadButton.setText(R.string.retry);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
@@ -139,31 +138,31 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                     TaskEntity taskEntity = itemTask.getTaskEntity();
                     int status = taskEntity.getTaskStatus();
                     switch (status) {
-                        case DOWNLOAD_STATUS_QUEUE:
+                        case TASK_STATUS_QUEUE:
                             mDownloadManager.pauseTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_INIT:
+                        case TASK_STATUS_INIT:
                             mDownloadManager.addTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_CONNECTING:
+                        case TASK_STATUS_CONNECTING:
                             mDownloadManager.pauseTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_START:
+                        case TASK_STATUS_START:
                             mDownloadManager.pauseTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_CANCEL:
+                        case TASK_STATUS_CANCEL:
                             mDownloadManager.addTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_PAUSE:
+                        case TASK_STATUS_PAUSE:
                             mDownloadManager.resumeTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_FINISH:
+                        case TASK_STATUS_FINISH:
                             mDownloadManager.cancelTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_REQUEST_ERROR:
+                        case TASK_STATUS_REQUEST_ERROR:
                             mDownloadManager.addTask(itemTask);
                             break;
-                        case DOWNLOAD_STATUS_STORAGE_ERROR:
+                        case TASK_STATUS_STORAGE_ERROR:
                             mDownloadManager.addTask(itemTask);
                             break;
                     }
@@ -231,16 +230,14 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
 
                     holder.downloadButton.setText(R.string.retry);
                     switch (codeError) {
-                        case DOWNLOAD_STATUS_REQUEST_ERROR:
+                        case TASK_STATUS_REQUEST_ERROR:
                             Toast.makeText(mContext, R.string.request_error, Toast.LENGTH_SHORT).show();
                             break;
-                        case DOWNLOAD_STATUS_STORAGE_ERROR:
+                        case TASK_STATUS_STORAGE_ERROR:
                             Toast.makeText(mContext, R.string.storage_error, Toast.LENGTH_SHORT).show();
                             break;
 
                     }
-
-
 
                 }
             }
