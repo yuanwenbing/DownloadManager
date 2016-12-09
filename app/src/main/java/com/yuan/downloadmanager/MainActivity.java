@@ -33,12 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private List<MockEntity> getMockData() {
         List<MockEntity> list = new ArrayList<>();
 
-        for(int i = 'a'; i<'o'; i++) {
+        for(int i = 0; i< 12; i++) {
             MockEntity entity = new MockEntity();
-            char c = (char) i;
-            String s = String.valueOf(c);
-            entity.setTitle(s.toUpperCase());
-            entity.setUrl("http://192.168.1.111:8888/test." + s + s + s);
+            entity.setTitle(i + "");
+            entity.setUrl("http://192.168.1.94:8888/test" + i + ".dmg");
             list.add(entity);
         }
 

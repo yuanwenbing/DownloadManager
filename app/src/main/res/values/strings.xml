@@ -9,4 +9,7 @@
     <string name="failure">失败</string>
     <string name="retry">重试</string>
     <string name="connecting">连接中</string>
+    <string name="queue">等待中</string>
+    <string name="request_error">请求异常</string>
+    <string name="storage_error">存储异常</string>
 </resources>

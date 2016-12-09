@@ -1,7 +1,12 @@
 package com.yuan.library.dmanager.download;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.SoundEffectConstants;
 
+import com.yuan.library.BuildConfig;
 import com.yuan.library.dmanager.db.DownloadDao;
 
 import java.io.File;
@@ -32,6 +37,9 @@ public class DownloadManager {
     // ThreadPoolExecutor
     private ThreadPoolExecutor mExecutor;
 
+
+    private int mMaximumPoolSize = 1;
+
     //
     private Map<String, DownloadTask> mCurrentTaskList;
 
@@ -57,17 +65,14 @@ public class DownloadManager {
     }
 
     public void init(Context context, int downloadSize) {
-        // init net
         initOkHttpClient();
-        // init db
         mDownloadDao = new DownloadDao(context);
         initDBState();
-        // init thread pool
         int size = downloadSize < 1 ? 1 : downloadSize;
-        mExecutor = new ThreadPoolExecutor(3, size, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        mMaximumPoolSize = size;
+        mExecutor = new ThreadPoolExecutor(size, size, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mExecutor.prestartAllCoreThreads();
         mCurrentTaskList = new HashMap<>();
-
         mQueue = mExecutor.getQueue();
 
     }
@@ -84,45 +89,47 @@ public class DownloadManager {
     }
 
     /**
-     * add task
+     * addTask task
      */
-    public void add(DownloadTask task) {
-        if (task != null && task.getDownloadStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
+    public void addTask(@NonNull DownloadTask task) {
+
+        TaskEntity taskEntity = task.getTaskEntity();
+
+        if (taskEntity != null && taskEntity.getTaskStatus() != DownloadStatus.DOWNLOAD_STATUS_START) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
-            task.create();
-            mCurrentTaskList.put(task.getTaskId(), task);
+            mCurrentTaskList.put(taskEntity.getTaskId(), task);
             if (!mQueue.contains(task)) {
                 mExecutor.execute(task);
             }
 
+            if (mExecutor.getTaskCount() > mMaximumPoolSize) {
+                task.queue();
+            }
+
+
         }
     }
 
     /**
-     * pause task
+     * pauseTask task
      */
-    public void pause(DownloadTask task) {
-        if (task != null) {
-            removeFromQueue(task);
-            task.pause();
-        }
+    public void pauseTask(@NonNull DownloadTask task) {
+        removeFromQueue(task);
+        task.pause();
     }
 
     /**
-     * resume task
+     * resumeTask task
      */
-    public void resume(DownloadTask task) {
-        if (task != null) {
-            add(task);
-        }
+    public void resumeTask(@NonNull DownloadTask task) {
+        addTask(task);
     }
 
     private void removeFromQueue(DownloadTask task) {
         if (mQueue.contains(task)) {
             try {
                 mQueue.take();
-                task.cancel();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -132,17 +139,23 @@ public class DownloadManager {
     /**
      * cancel task
      */
-    public void cancel(DownloadTask task) {
-        if (task != null) {
-            mCurrentTaskList.remove(task.getTaskId());
+    public void cancelTask(@NonNull DownloadTask task) {
+        TaskEntity taskEntity = task.getTaskEntity();
+        if (taskEntity != null) {
+            removeFromQueue(task);
+            mCurrentTaskList.remove(taskEntity.getTaskId());
+            mDownloadDao.delete(mDownloadDao.query(taskEntity.getTaskId()));
             task.cancel();
-            mDownloadDao.delete(mDownloadDao.query(task.getTaskId()));
-            File temp = new File(task.getSaveDirPath() + task.getFileName());
-            if (temp.exists()) temp.delete();
-            task.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_CANCEL);
+            if (!TextUtils.isEmpty(taskEntity.getFilePath()) && !TextUtils.isEmpty(taskEntity.getFileName())) {
+                File temp = new File(taskEntity.getFilePath(), taskEntity.getFileName());
+                if (temp.exists()) {
+                    if (temp.delete()) {
+                        if (BuildConfig.DEBUG) Log.d("DownloadManager", "delete temp file!");
+                    }
+                }
+            }
         }
     }
-
 
     /**
      * @return task
@@ -150,10 +163,10 @@ public class DownloadManager {
     public DownloadTask getTask(String id) {
         DownloadTask currTask = mCurrentTaskList.get(id);
         if (currTask == null) {
-            DownloadEntity entity = mDownloadDao.query(id);
+            TaskEntity entity = mDownloadDao.query(id);
             if (entity != null) {
-                int status = entity.getDownloadStatus();
-                currTask = createTaskWithEntity(entity);
+                int status = entity.getTaskStatus();
+                currTask = new DownloadTask(entity);
                 if (status != DownloadStatus.DOWNLOAD_STATUS_FINISH) {
                     mCurrentTaskList.put(id, currTask);
                 }
@@ -162,47 +175,39 @@ public class DownloadManager {
         return currTask;
     }
 
-    /**
-     * @return all tasks
-     */
-    public Map<String, DownloadTask> getTaskList() {
-        if (mCurrentTaskList != null && mCurrentTaskList.size() <= 0) {
-            List<DownloadEntity> entities = mDownloadDao.queryAll();
-            for (DownloadEntity entity : entities) {
-                DownloadTask currTask = createTaskWithEntity(entity);
-                mCurrentTaskList.put(entity.getDownloadId(), currTask);
+    public boolean isPauseTask(String id) {
+        TaskEntity entity = mDownloadDao.query(id);
+        if (entity != null) {
+            File file = new File(entity.getFilePath(), entity.getFilePath());
+            if (file.exists()) {
+                long totalSize = entity.getTotalSize();
+                return totalSize > 0 && file.length() < totalSize;
             }
         }
+        return false;
+    }
 
-        return mCurrentTaskList;
+    public boolean isFinishTask(String id) {
+        TaskEntity entity = mDownloadDao.query(id);
+        if (entity != null) {
+            File file = new File(entity.getFilePath(), entity.getFileName());
+            if (file.exists()) {
+                return file.length() == entity.getTotalSize();
+            }
+        }
+        return false;
     }
 
     private void initDBState() {
-        List<DownloadEntity> entities = mDownloadDao.queryAll();
-        for (DownloadEntity entity : entities) {
+        List<TaskEntity> entities = mDownloadDao.queryAll();
+        for (TaskEntity entity : entities) {
             long completedSize = entity.getCompletedSize();
             long totalSize = entity.getTotalSize();
-            if (completedSize > 0 && completedSize != totalSize && entity.getDownloadStatus() == DownloadStatus.DOWNLOAD_STATUS_START) {
-                entity.setDownloadStatus(DownloadStatus.DOWNLOAD_STATUS_PAUSE);
+            if (completedSize > 0 && completedSize != totalSize && entity.getTaskStatus() == DownloadStatus.DOWNLOAD_STATUS_START) {
+                entity.setTaskStatus(DownloadStatus.DOWNLOAD_STATUS_PAUSE);
             }
             mDownloadDao.update(entity);
         }
     }
-
-    private DownloadTask createTaskWithEntity(DownloadEntity entity) {
-        if (entity != null) {
-            return new DownloadTask.Builder()
-                    .setDownloadStatus(entity.getDownloadStatus())
-                    .setFileName(entity.getFileName())
-                    .setSaveDirPath(entity.getSaveDirPath())
-                    .setUrl(entity.getUrl())
-                    .setCompletedSize(entity.getCompletedSize())
-                    .setTotalSize(entity.getTotalSize())
-                    .setId(entity.getDownloadId()).build();
-
-        }
-        return null;
-    }
-
 
 }

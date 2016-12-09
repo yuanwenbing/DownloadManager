@@ -21,13 +21,13 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createSql = "CREATE TABLE if not exists " + "download_status" + " ("
                 + "id INTEGER PRIMARY KEY autoincrement,"
-                + "downloadId TEXT,"
+                + "taskId TEXT,"
                 + "totalSize LONG,"
                 + "completedSize LONG,"
                 + "url TEXT,"
-                + "saveDirPath TEXT,"
+                + "filePath TEXT,"
                 + "fileName TEXT,"
-                + "downloadStatus INTEGER" + ");";
+                + "taskStatus INTEGER" + ");";
         sqLiteDatabase.execSQL(createSql);
     }
 

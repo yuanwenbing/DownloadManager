@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.yuan.library.dmanager.download.DownloadEntity;
+import com.yuan.library.dmanager.download.TaskEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class DownloadDao {
         mHelper = new SQLiteHelper(context, "download", null, 1);
     }
 
-    public boolean insert(DownloadEntity entity) {
+    public boolean insert(TaskEntity entity) {
         SQLiteDatabase database = mHelper.getWritableDatabase();
         long insert = database.insert("download_status", null, getContentValues(entity));
         System.out.println("insert");
@@ -32,29 +32,29 @@ public class DownloadDao {
         return insert != -1;
     }
 
-    public DownloadEntity query(String id) {
+    public TaskEntity query(String id) {
         try {
             SQLiteDatabase database = mHelper.getReadableDatabase();
             Cursor cursor = null;
             try {
-                cursor = database.query("download_status", null, "downloadId=?", new String[]{id}, null, null, null, null);
+                cursor = database.query("download_status", null, "taskId=?", new String[]{id}, null, null, null, null);
                 if (cursor.moveToNext()) {
-                    DownloadEntity.Builder builder = new DownloadEntity.Builder();
-                    String downloadId = cursor.getString(cursor.getColumnIndex("downloadId"));
+                    TaskEntity.Builder builder = new TaskEntity.Builder();
+                    String taskId = cursor.getString(cursor.getColumnIndex("taskId"));
                     int totalSize = cursor.getInt(cursor.getColumnIndex("totalSize"));
                     int completedSize = cursor.getInt(cursor.getColumnIndex("completedSize"));
                     String url = cursor.getString(cursor.getColumnIndex("url"));
-                    String saveDirPath = cursor.getString(cursor.getColumnIndex("saveDirPath"));
+                    String saveDirPath = cursor.getString(cursor.getColumnIndex("filePath"));
                     String fileName = cursor.getString(cursor.getColumnIndex("fileName"));
-                    int downloadStatus = cursor.getInt(cursor.getColumnIndex("downloadStatus"));
+                    int taskStatus = cursor.getInt(cursor.getColumnIndex("taskStatus"));
 
-                    return builder.downloadId(downloadId)
+                    return builder.downloadId(taskId)
                             .totalSize(totalSize)
                             .completedSize(completedSize)
                             .url(url)
-                            .saveDirPath(saveDirPath)
+                            .filePath(saveDirPath)
                             .fileName(fileName)
-                            .downloadStatus(downloadStatus)
+                            .downloadStatus(taskStatus)
                             .build();
 
                 }
@@ -71,27 +71,27 @@ public class DownloadDao {
         return null;
     }
 
-    public List<DownloadEntity> queryAll() {
+    public List<TaskEntity> queryAll() {
         SQLiteDatabase database = mHelper.getReadableDatabase();
         Cursor cursor = null;
-        List<DownloadEntity> list = new ArrayList<>();
+        List<TaskEntity> list = new ArrayList<>();
         try {
             cursor = database.query("download_status", null, null, null, null, null, null, null);
             while (cursor.moveToNext()) {
-                DownloadEntity.Builder builder = new DownloadEntity.Builder();
-                String downloadId = cursor.getString(cursor.getColumnIndex("downloadId"));
+                TaskEntity.Builder builder = new TaskEntity.Builder();
+                String taskId = cursor.getString(cursor.getColumnIndex("taskId"));
                 int totalSize = cursor.getInt(cursor.getColumnIndex("totalSize"));
                 int completedSize = cursor.getInt(cursor.getColumnIndex("completedSize"));
                 String url = cursor.getString(cursor.getColumnIndex("url"));
-                String saveDirPath = cursor.getString(cursor.getColumnIndex("saveDirPath"));
+                String saveDirPath = cursor.getString(cursor.getColumnIndex("filePath"));
                 String fileName = cursor.getString(cursor.getColumnIndex("fileName"));
-                int downloadStatus = cursor.getInt(cursor.getColumnIndex("downloadStatus"));
+                int downloadStatus = cursor.getInt(cursor.getColumnIndex("taskStatus"));
 
-                list.add(builder.downloadId(downloadId)
+                list.add(builder.downloadId(taskId)
                         .totalSize(totalSize)
                         .completedSize(completedSize)
                         .url(url)
-                        .saveDirPath(saveDirPath)
+                        .filePath(saveDirPath)
                         .fileName(fileName)
                         .downloadStatus(downloadStatus)
                         .build());
@@ -109,17 +109,16 @@ public class DownloadDao {
         }
     }
 
-    public boolean update(DownloadEntity entity) {
+    public boolean update(TaskEntity entity) {
         SQLiteDatabase database = mHelper.getWritableDatabase();
-        long update = database.update("download_status", getContentValues(entity), "downloadId=?", new String[]{entity.getDownloadId()});
-        database.close();
+        long update = database.update("download_status", getContentValues(entity), "taskId=?", new String[]{entity.getTaskId()});
         return update != -1;
     }
 
-    public boolean delete(DownloadEntity entity) {
+    public boolean delete(TaskEntity entity) {
         if (entity == null) return false;
         SQLiteDatabase database = mHelper.getWritableDatabase();
-        long delete = database.delete("download_status", "downloadId=?", new String[]{entity.getDownloadId()});
+        long delete = database.delete("download_status", "taskId=?", new String[]{entity.getTaskId()});
         database.close();
         return delete != -1;
     }
@@ -131,15 +130,15 @@ public class DownloadDao {
         return true;
     }
 
-    private ContentValues getContentValues(DownloadEntity entity) {
+    private ContentValues getContentValues(TaskEntity entity) {
         ContentValues cv = new ContentValues();
-        cv.put("downloadId", entity.getDownloadId());
+        cv.put("taskId", entity.getTaskId());
         cv.put("totalSize", entity.getTotalSize());
         cv.put("completedSize", entity.getCompletedSize());
         cv.put("url", entity.getUrl());
-        cv.put("saveDirPath", entity.getSaveDirPath());
+        cv.put("filePath", entity.getFilePath());
         cv.put("fileName", entity.getFileName());
-        cv.put("downloadStatus", entity.getDownloadStatus());
+        cv.put("taskStatus", entity.getTaskStatus());
         return cv;
     }
 

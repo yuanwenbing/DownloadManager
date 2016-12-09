@@ -10,6 +10,9 @@ import java.io.File;
 
 public interface DownloadTaskListener {
 
+
+    void onQueue(DownloadTask downloadTask);
+
     /**
      * connecting
      */
@@ -18,12 +21,12 @@ public interface DownloadTaskListener {
     /**
      * downloading
      */
-    void onStart(DownloadTask downloadTask, long completedSize, long totalSize, String percent);
+    void onStart(DownloadTask downloadTask);
 
     /**
-     * pause
+     * pauseTask
      */
-    void onPause(DownloadTask downloadTask, long completedSize, long totalSize, String percent);
+    void onPause(DownloadTask downloadTask);
 
     /**
      * cancel
@@ -33,11 +36,11 @@ public interface DownloadTaskListener {
     /**
      * success
      */
-    void onFinish(DownloadTask downloadTask, File file);
+    void onFinish(DownloadTask downloadTask);
 
     /**
      * failure
      */
-    void onError(DownloadTask downloadTask, int errorCode);
+    void onError(DownloadTask downloadTask, int code);
 
 }
