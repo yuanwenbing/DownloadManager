@@ -46,6 +46,7 @@ v1.1.2:
 * 修复多个任务同时等待时，暂停某个任务时，等待队列出现错误。
 * 修复Demo按返回键退出程序，任务还在下载时，UI不刷新问题（以后版本更新，会将下载统一下放到service中）。
 * 优化线程池的处理。
+
 v1.1.1：
 * 添加超时异常的捕获。
 * 可以自定义OkHttpClient，通过DownloadManager.getInstance().init(this, 3，HttpClient)添加。
