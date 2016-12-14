@@ -1,8 +1,8 @@
 # DownloadManager
 
 # Introduce
-1、基于OkHttp实现的下载管理，支持多线程、断点续传等功能，Demo演示用的是RecyclerView，在Application里可设置任务并发等。
-2、实现时基本无别的臃肿代码，可以方便修改使用。
+* 基于OkHttp实现的下载管理，支持多线程、断点续传等功能，Demo演示用的是RecyclerView，在Application里可设置任务并发等。
+* 实现时基本无别的臃肿代码，可以方便修改使用。
 
 
 # Demo
