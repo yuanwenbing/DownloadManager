@@ -49,7 +49,6 @@ public class TaskEntity {
         return url;
     }
 
-
     public String getFilePath() {
         return filePath;
     }

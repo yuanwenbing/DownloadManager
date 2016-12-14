@@ -26,7 +26,7 @@ public class DownloadManager {
     private static DownloadManager mInstance;
 
     // quess
-    private BlockingQueue<Runnable> mQueue;
+    private LinkedBlockingQueue<Runnable> mQueue;
 
     // download database dao
     private DownloadDao mDownloadDao;
@@ -80,10 +80,9 @@ public class DownloadManager {
         recoveryTaskState();
         mClient = client;
         mThreadCount = threadCount < 1 ? 1 : threadCount <= Constants.MAX_THREAD_COUNT ? threadCount : Constants.MAX_THREAD_COUNT;
-        mExecutor = new ThreadPoolExecutor(mThreadCount, mThreadCount, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        mExecutor.prestartAllCoreThreads();
+        mExecutor = new ThreadPoolExecutor(mThreadCount, mThreadCount, 20, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         mCurrentTaskList = new HashMap<>();
-        mQueue = mExecutor.getQueue();
+        mQueue = (LinkedBlockingQueue<Runnable>) mExecutor.getQueue();
 
     }
 
@@ -141,11 +140,7 @@ public class DownloadManager {
 
     private void removeFromQueue(DownloadTask task) {
         if (mQueue.contains(task)) {
-            try {
-                mQueue.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            mQueue.remove(task);
         }
     }
 

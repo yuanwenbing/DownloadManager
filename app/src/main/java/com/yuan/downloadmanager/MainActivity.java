@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private List<MockEntity> getMockData() {
         List<MockEntity> list = new ArrayList<>();
 
-        for(int i = 0; i< 12; i++) {
+        for (int i = 0; i < 18; i++) {
             MockEntity entity = new MockEntity();
             entity.setTitle(i + "");
             entity.setUrl("http://192.168.1.94:8888/test" + i + ".dmg");

@@ -3,6 +3,7 @@ package com.yuan.downloadmanager;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +77,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         } else {
             TaskEntity taskEntity = itemTask.getTaskEntity();
             int status = taskEntity.getTaskStatus();
+            responseUIListener(itemTask, holder);
             String progress = getPercent(taskEntity.getCompletedSize(), taskEntity.getTotalSize());
             switch (status) {
                 case TASK_STATUS_INIT:

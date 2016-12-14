@@ -27,7 +27,6 @@ public class DownloadDao {
     public boolean insert(TaskEntity entity) {
         SQLiteDatabase database = mHelper.getWritableDatabase();
         long insert = database.insert("download_status", null, getContentValues(entity));
-        System.out.println("insert");
         database.close();
         return insert != -1;
     }
