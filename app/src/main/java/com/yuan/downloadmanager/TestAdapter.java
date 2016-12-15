@@ -3,7 +3,6 @@ package com.yuan.downloadmanager;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,7 @@ import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_FINISH;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_INIT;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_PAUSE;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_QUEUE;
-import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_START;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_DOWNLOADING;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_STORAGE_ERROR;
 
 /**
@@ -39,16 +38,16 @@ import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_STORAGE_
  * Description:com.yuan.downloadmanager.ListAdapter
  */
 
-class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CViewHolder> {
+class TestAdapter extends RecyclerView.Adapter<TestAdapter.CViewHolder> {
 
     private Context mContext;
 
-    private List<MockEntity> mListData;
+    private List<TestEntity> mListData;
 
     private DownloadManager mDownloadManager;
 
 
-    DownloadListAdapter(Context context, List<MockEntity> list) {
+    TestAdapter(Context context, List<TestEntity> list) {
         mContext = context;
         mListData = list;
         mDownloadManager = DownloadManager.getInstance();
@@ -64,7 +63,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
     @Override
     public void onBindViewHolder(final CViewHolder holder, final int position) {
 
-        final MockEntity entity = mListData.get(holder.getAdapterPosition());
+        final TestEntity entity = mListData.get(holder.getAdapterPosition());
         holder.titleView.setText(entity.getTitle());
         holder.itemView.setTag(mListData.get(holder.getAdapterPosition()).getUrl());
         String taskId = String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode());
@@ -97,7 +96,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
                     break;
-                case TASK_STATUS_START:
+                case TASK_STATUS_DOWNLOADING:
                     holder.downloadButton.setText(R.string.pause);
                     holder.progressBar.setProgress(Integer.parseInt(progress));
                     holder.progressView.setText(progress);
@@ -149,7 +148,7 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
                         case TASK_STATUS_CONNECTING:
                             mDownloadManager.pauseTask(itemTask);
                             break;
-                        case TASK_STATUS_START:
+                        case TASK_STATUS_DOWNLOADING:
                             mDownloadManager.pauseTask(itemTask);
                             break;
                         case TASK_STATUS_CANCEL:
@@ -246,7 +245,6 @@ class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapter.CView
         });
 
     }
-
 
     private String getPercent(long completed, long total) {
 

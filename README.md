@@ -15,7 +15,7 @@
 ## Gradle
 
 ```
-compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.2'
+compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.3'
 ```
 ## Maven
 
@@ -23,7 +23,7 @@ compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.2'
 <dependency>
   <groupId>com.yuan.library.dmanager</groupId>
   <artifactId>downloadmanager-okhttp-release</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
   <type>pom</type>
 </dependency>
 ```
@@ -42,6 +42,10 @@ DownloadManager.getInstance().add(itemTask);
 //下载管理具体使用，也需要对列表的adapter进行处理，具体实现请参考demo。
 ```
 # Update
+
+v1.1.3
+* 修复有任务正在下载时，取消任务有时候不能中断下载的BUG。在demo中长按某个条目，可取消一个任务。
+
 v1.1.2:
 * 修复多个任务同时等待，暂停某个任务时，等待队列出现错误。
 * 修复Demo按返回键退出程序，再次进入程序，任务还在下载时，UI不刷新问题（以后版本更新，会将下载统一下放到service中）。

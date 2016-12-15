@@ -49,7 +49,7 @@ public class DownloadTask implements Runnable {
                 case TaskStatus.TASK_STATUS_CONNECTING:
                     mListener.onConnecting(DownloadTask.this);
                     break;
-                case TaskStatus.TASK_STATUS_START:
+                case TaskStatus.TASK_STATUS_DOWNLOADING:
                     mListener.onStart(DownloadTask.this);
                     break;
                 case TaskStatus.TASK_STATUS_PAUSE:
@@ -112,7 +112,7 @@ public class DownloadTask implements Runnable {
                         mDownloadDao.insert(mTaskEntity);
                         mTaskEntity.setTotalSize(responseBody.contentLength());
                     }
-                    mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_START);
+                    mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_DOWNLOADING);
 
                     double updateSize = mTaskEntity.getTotalSize() / 100;
                     inputStream = responseBody.byteStream();
@@ -129,11 +129,11 @@ public class DownloadTask implements Runnable {
                         if (buffOffset >= updateSize) {
                             buffOffset = 0;
                             mDownloadDao.update(mTaskEntity);
-                            handler.sendEmptyMessage(TaskStatus.TASK_STATUS_START);
+                            handler.sendEmptyMessage(TaskStatus.TASK_STATUS_DOWNLOADING);
                         }
 
                         if (completedSize == mTaskEntity.getTotalSize()) {
-                            handler.sendEmptyMessage(TaskStatus.TASK_STATUS_START);
+                            handler.sendEmptyMessage(TaskStatus.TASK_STATUS_DOWNLOADING);
                             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_FINISH);
                             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_FINISH);
                             mDownloadDao.update(mTaskEntity);

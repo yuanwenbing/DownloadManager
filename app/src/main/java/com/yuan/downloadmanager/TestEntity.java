@@ -3,10 +3,10 @@ package com.yuan.downloadmanager;
 /**
  * Created by Yuan on 9/19/16:2:49 PM.
  * <p/>
- * Description:com.yuan.downloadmanager.MockEntity
+ * Description:com.yuan.downloadmanager.TestEntity
  */
 
-public class MockEntity {
+public class TestEntity {
 
     private String title;
     private String url;

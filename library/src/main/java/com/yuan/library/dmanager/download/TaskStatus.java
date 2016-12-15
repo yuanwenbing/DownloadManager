@@ -26,12 +26,12 @@ public class TaskStatus {
     /**
      * start download
      */
-    public static final int TASK_STATUS_START = TASK_STATUS_CONNECTING + 1;
+    public static final int TASK_STATUS_DOWNLOADING = TASK_STATUS_CONNECTING + 1;
 
     /**
      * cancel download
      */
-    public static final int TASK_STATUS_CANCEL = TASK_STATUS_START + 1;
+    public static final int TASK_STATUS_CANCEL = TASK_STATUS_DOWNLOADING + 1;
 
     /**
      * pause download

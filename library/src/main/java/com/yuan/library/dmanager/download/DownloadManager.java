@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -109,7 +108,7 @@ public class DownloadManager {
 
         TaskEntity taskEntity = task.getTaskEntity();
 
-        if (taskEntity != null && taskEntity.getTaskStatus() != TaskStatus.TASK_STATUS_START) {
+        if (taskEntity != null && taskEntity.getTaskStatus() != TaskStatus.TASK_STATUS_DOWNLOADING) {
             task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
             mCurrentTaskList.put(taskEntity.getTaskId(), task);
@@ -127,7 +126,9 @@ public class DownloadManager {
      * pauseTask task
      */
     public void pauseTask(@NonNull DownloadTask task) {
-        removeFromQueue(task);
+        if (mQueue.contains(task)) {
+            mQueue.remove(task);
+        }
         task.pause();
     }
 
@@ -138,19 +139,22 @@ public class DownloadManager {
         addTask(task);
     }
 
-    private void removeFromQueue(DownloadTask task) {
-        if (mQueue.contains(task)) {
-            mQueue.remove(task);
-        }
-    }
 
     /**
      * cancel task
      */
-    public void cancelTask(@NonNull DownloadTask task) {
+    public void cancelTask(DownloadTask task) {
+        if(task == null) return;
         TaskEntity taskEntity = task.getTaskEntity();
         if (taskEntity != null) {
-            removeFromQueue(task);
+            if(task.getTaskEntity().getTaskStatus() == TaskStatus.TASK_STATUS_DOWNLOADING){
+                pauseTask(task);
+                mExecutor.remove(task);
+            }
+
+            if (mQueue.contains(task)) {
+                mQueue.remove(task);
+            }
             mCurrentTaskList.remove(taskEntity.getTaskId());
             mDownloadDao.delete(mDownloadDao.query(taskEntity.getTaskId()));
             task.cancel();
