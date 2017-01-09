@@ -15,7 +15,7 @@
 ## Gradle
 
 ```
-compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.3'
+compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.4'
 ```
 ## Maven
 
@@ -23,7 +23,7 @@ compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.3'
 <dependency>
   <groupId>com.yuan.library.dmanager</groupId>
   <artifactId>downloadmanager-okhttp-release</artifactId>
-  <version>1.1.3</version>
+  <version>1.1.4</version>
   <type>pom</type>
 </dependency>
 ```
@@ -42,6 +42,8 @@ DownloadManager.getInstance().add(itemTask);
 //下载管理具体使用，也需要对列表的adapter进行处理，具体实现请参考demo。
 ```
 # Update
+v1.1.4
+* 最低兼容版本到14（Android4.0）
 
 v1.1.3
 * 修复有任务正在下载时，取消任务有时候不能中断下载的BUG。在demo中长按某个条目，可取消一个任务。

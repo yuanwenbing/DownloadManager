@@ -6,10 +6,10 @@ android {
     buildToolsVersion "24.0.1"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 24
         versionCode 1
-        versionName "1.1.3"
+        versionName "1.1.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -44,7 +44,7 @@ publish {
     userOrg = 'yuanwenbing'
     groupId = 'com.yuan.library.dmanager'
     artifactId = 'downloadmanager-okhttp-release'
-    publishVersion = '1.1.3'
+    publishVersion = '1.1.4'
     desc = 'okhttp downloadmanager'
     website = 'https://github.com/yuanwenbing/DownloadManager'
 }
