@@ -111,7 +111,7 @@ public class DownloadDao {
     public boolean update(TaskEntity entity) {
         SQLiteDatabase database = mHelper.getWritableDatabase();
         long update = database.update("download_status", getContentValues(entity), "taskId=?", new String[]{entity.getTaskId()});
-        return update != -1;
+        return update != 0;
     }
 
     public boolean delete(TaskEntity entity) {
@@ -119,7 +119,7 @@ public class DownloadDao {
         SQLiteDatabase database = mHelper.getWritableDatabase();
         long delete = database.delete("download_status", "taskId=?", new String[]{entity.getTaskId()});
         database.close();
-        return delete != -1;
+        return delete != 0;
     }
 
     public boolean drop() {

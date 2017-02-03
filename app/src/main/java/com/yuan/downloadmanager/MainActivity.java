@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 18; i++) {
             TestEntity entity = new TestEntity();
             entity.setTitle(i + "");
-            entity.setUrl("http://192.168.1.94:8888/test" + i + ".dmg");
+            entity.setUrl("http://192.168.0.107:8888/test" + i + ".dmg");
             list.add(entity);
         }
 

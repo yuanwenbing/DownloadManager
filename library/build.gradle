@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 24
         versionCode 1
-        versionName "1.1.4"
+        versionName "1.1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -44,7 +44,7 @@ publish {
     userOrg = 'yuanwenbing'
     groupId = 'com.yuan.library.dmanager'
     artifactId = 'downloadmanager-okhttp-release'
-    publishVersion = '1.1.4'
+    publishVersion = '1.1.5'
     desc = 'okhttp downloadmanager'
     website = 'https://github.com/yuanwenbing/DownloadManager'
 }

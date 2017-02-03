@@ -156,7 +156,6 @@ public class DownloadManager {
                 mQueue.remove(task);
             }
             mCurrentTaskList.remove(taskEntity.getTaskId());
-            mDownloadDao.delete(mDownloadDao.query(taskEntity.getTaskId()));
             task.cancel();
             if (!TextUtils.isEmpty(taskEntity.getFilePath()) && !TextUtils.isEmpty(taskEntity.getFileName())) {
                 File temp = new File(taskEntity.getFilePath(), taskEntity.getFileName());

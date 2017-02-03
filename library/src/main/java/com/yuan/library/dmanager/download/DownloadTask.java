@@ -165,6 +165,7 @@ public class DownloadTask implements Runnable {
 
     void pause() {
         mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_PAUSE);
+        mDownloadDao.update(mTaskEntity);
         handler.sendEmptyMessage(TaskStatus.TASK_STATUS_PAUSE);
     }
 
@@ -175,6 +176,7 @@ public class DownloadTask implements Runnable {
 
     void cancel() {
         mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_CANCEL);
+        mDownloadDao.delete(mTaskEntity);
         handler.sendEmptyMessage(TaskStatus.TASK_STATUS_CANCEL);
     }
 
