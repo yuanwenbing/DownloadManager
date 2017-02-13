@@ -2,19 +2,45 @@ package com.yuan.library.dmanager.download;
 
 import android.text.TextUtils;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Property;
+
 /**
  * Created by Yuan on 8/17/16.
  * <p>
  * download status
  */
 
+@Entity(nameInDb = "download_status")
 public class TaskEntity {
+
+    /**
+     *  + "id INTEGER PRIMARY KEY autoincrement,"
+     + "taskId TEXT,"
+     + "totalSize LONG,"
+     + "completedSize LONG,"
+     + "url TEXT,"
+     + "filePath TEXT,"
+     + "fileName TEXT,"
+     + "taskStatus INTEGER" + ");";
+     */
+    @Id(autoincrement = true)
+    private Long id;
+    @Property
     private String taskId;
+    @Property
     private long totalSize;
+    @Property
     private long completedSize;
+    @Property
     private String url;
+    @Property
     private String filePath;
+    @Property
     private String fileName;
+    @Property
     private int taskStatus;
 
 
@@ -26,6 +52,23 @@ public class TaskEntity {
         this.filePath = builder.filePath;
         this.fileName = builder.fileName;
         this.taskStatus = builder.taskStatus;
+    }
+
+    @Generated(hash = 1689179221)
+    public TaskEntity(Long id, String taskId, long totalSize, long completedSize, String url,
+            String filePath, String fileName, int taskStatus) {
+        this.id = id;
+        this.taskId = taskId;
+        this.totalSize = totalSize;
+        this.completedSize = completedSize;
+        this.url = url;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.taskStatus = taskStatus;
+    }
+
+    @Generated(hash = 397975341)
+    public TaskEntity() {
     }
 
     public String getTaskId() {
@@ -161,5 +204,13 @@ public class TaskEntity {
                 ", fileName='" + fileName + '\'' +
                 ", taskStatus=" + taskStatus +
                 '}';
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

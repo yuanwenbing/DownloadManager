@@ -15,7 +15,7 @@
 ## Gradle
 
 ```
-compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.5'
+compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.6'
 ```
 ## Maven
 
@@ -23,7 +23,7 @@ compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.5'
 <dependency>
   <groupId>com.yuan.library.dmanager</groupId>
   <artifactId>downloadmanager-okhttp-release</artifactId>
-  <version>1.1.5</version>
+  <version>1.1.6</version>
   <type>pom</type>
 </dependency>
 ```
@@ -42,6 +42,9 @@ DownloadManager.getInstance().add(itemTask);
 //下载管理具体使用，也需要对列表的adapter进行处理，具体实现请参考demo。
 ```
 # Update
+v1.1.6
+* 修改数据库的存储为GreenDao框架。
+
 v1.1.5
 * 修复暂停后没有更新数据库状态。
 

@@ -1,12 +1,13 @@
 package com.yuan.library.dmanager.download;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.yuan.library.BuildConfig;
-import com.yuan.library.dmanager.db.DownloadDao;
+import com.yuan.library.dmanager.db.DaoManager;
 import com.yuan.library.dmanager.utils.Constants;
 
 import java.io.File;
@@ -27,9 +28,6 @@ public class DownloadManager {
     // quess
     private LinkedBlockingQueue<Runnable> mQueue;
 
-    // download database dao
-    private DownloadDao mDownloadDao;
-
     // ok http
     private OkHttpClient mClient;
 
@@ -41,6 +39,9 @@ public class DownloadManager {
 
     // task list
     private Map<String, DownloadTask> mCurrentTaskList;
+
+    // greenDao seesion
+    private DaoSession mDaoSession;
 
     private DownloadManager() {
 
@@ -75,7 +76,8 @@ public class DownloadManager {
      */
 
     public void init(@NonNull Context context, int threadCount, @NonNull OkHttpClient client) {
-        mDownloadDao = new DownloadDao(context);
+        setupDatabase(context);
+
         recoveryTaskState();
         mClient = client;
         mThreadCount = threadCount < 1 ? 1 : threadCount <= Constants.MAX_THREAD_COUNT ? threadCount : Constants.MAX_THREAD_COUNT;
@@ -83,6 +85,18 @@ public class DownloadManager {
         mCurrentTaskList = new HashMap<>();
         mQueue = (LinkedBlockingQueue<Runnable>) mExecutor.getQueue();
 
+
+    }
+
+    private void setupDatabase(Context context) {
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "download.db", null);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        DaoMaster master = new DaoMaster(db);
+        mDaoSession = master.newSession();
+    }
+
+    public DaoSession getDaoSession() {
+        return mDaoSession;
     }
 
 
@@ -109,7 +123,6 @@ public class DownloadManager {
         TaskEntity taskEntity = task.getTaskEntity();
 
         if (taskEntity != null && taskEntity.getTaskStatus() != TaskStatus.TASK_STATUS_DOWNLOADING) {
-            task.setDownloadDao(mDownloadDao);
             task.setClient(mClient);
             mCurrentTaskList.put(taskEntity.getTaskId(), task);
             if (!mQueue.contains(task)) {
@@ -174,7 +187,7 @@ public class DownloadManager {
     public DownloadTask getTask(String id) {
         DownloadTask currTask = mCurrentTaskList.get(id);
         if (currTask == null) {
-            TaskEntity entity = mDownloadDao.query(id);
+            TaskEntity entity = DaoManager.instance().queryWidthId(id);
             if (entity != null) {
                 int status = entity.getTaskStatus();
                 currTask = new DownloadTask(entity);
@@ -188,7 +201,7 @@ public class DownloadManager {
 
 
     public boolean isPauseTask(String id) {
-        TaskEntity entity = mDownloadDao.query(id);
+        TaskEntity entity = DaoManager.instance().queryWidthId(id);
         if (entity != null) {
             File file = new File(entity.getFilePath(), entity.getFilePath());
             if (file.exists()) {
@@ -200,7 +213,7 @@ public class DownloadManager {
     }
 
     public boolean isFinishTask(String id) {
-        TaskEntity entity = mDownloadDao.query(id);
+        TaskEntity entity = DaoManager.instance().queryWidthId(id);
         if (entity != null) {
             File file = new File(entity.getFilePath(), entity.getFileName());
             if (file.exists()) {
@@ -211,14 +224,14 @@ public class DownloadManager {
     }
 
     private void recoveryTaskState() {
-        List<TaskEntity> entities = mDownloadDao.queryAll();
+        List<TaskEntity> entities = DaoManager.instance().queryAll();
         for (TaskEntity entity : entities) {
             long completedSize = entity.getCompletedSize();
             long totalSize = entity.getTotalSize();
             if (completedSize > 0 && completedSize != totalSize && entity.getTaskStatus() != TaskStatus.TASK_STATUS_PAUSE) {
                 entity.setTaskStatus(TaskStatus.TASK_STATUS_PAUSE);
             }
-            mDownloadDao.update(entity);
+            DaoManager.instance().update(entity);
         }
     }
 

@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.yuan.library.dmanager.db.DownloadDao;
+import com.yuan.library.dmanager.db.DaoManager;
 import com.yuan.library.dmanager.utils.FileUtils;
 import com.yuan.library.dmanager.utils.IOUtils;
 
@@ -33,8 +33,6 @@ public class DownloadTask implements Runnable {
     private OkHttpClient mClient;
 
     private TaskEntity mTaskEntity;
-
-    private DownloadDao mDownloadDao;
 
     private DownloadTaskListener mListener;
 
@@ -94,7 +92,10 @@ public class DownloadTask implements Runnable {
 
             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_CONNECTING);
             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_CONNECTING);
-            mDownloadDao.update(mTaskEntity);
+
+            if(DaoManager.instance().queryWidthId(mTaskEntity.getTaskId()) != null) {
+                DaoManager.instance().update(mTaskEntity);
+            }
 
             long completedSize = mTaskEntity.getCompletedSize();
             Request request = new Request.Builder().url(mTaskEntity.getUrl()).header("RANGE", "bytes=" + completedSize + "-").build();
@@ -108,8 +109,8 @@ public class DownloadTask implements Runnable {
             if(response.isSuccessful()) {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null) {
-                    if (mDownloadDao.query(mTaskEntity.getTaskId()) == null) {
-                        mDownloadDao.insert(mTaskEntity);
+                    if (DaoManager.instance().queryWidthId(mTaskEntity.getTaskId()) == null) {
+                        DaoManager.instance().insertOrReplace(mTaskEntity);
                         mTaskEntity.setTotalSize(responseBody.contentLength());
                     }
                     mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_DOWNLOADING);
@@ -128,7 +129,7 @@ public class DownloadTask implements Runnable {
                         // 避免一直调用数据库
                         if (buffOffset >= updateSize) {
                             buffOffset = 0;
-                            mDownloadDao.update(mTaskEntity);
+                            DaoManager.instance().update(mTaskEntity);
                             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_DOWNLOADING);
                         }
 
@@ -136,7 +137,7 @@ public class DownloadTask implements Runnable {
                             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_DOWNLOADING);
                             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_FINISH);
                             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_FINISH);
-                            mDownloadDao.update(mTaskEntity);
+                            DaoManager.instance().update(mTaskEntity);
                         }
                     }
                 }
@@ -165,7 +166,7 @@ public class DownloadTask implements Runnable {
 
     void pause() {
         mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_PAUSE);
-        mDownloadDao.update(mTaskEntity);
+        DaoManager.instance().update(mTaskEntity);
         handler.sendEmptyMessage(TaskStatus.TASK_STATUS_PAUSE);
     }
 
@@ -176,12 +177,8 @@ public class DownloadTask implements Runnable {
 
     void cancel() {
         mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_CANCEL);
-        mDownloadDao.delete(mTaskEntity);
+        DaoManager.instance().delete(mTaskEntity);
         handler.sendEmptyMessage(TaskStatus.TASK_STATUS_CANCEL);
-    }
-
-    void setDownloadDao(DownloadDao mDownloadDao) {
-        this.mDownloadDao = mDownloadDao;
     }
 
     void setClient(OkHttpClient mClient) {
