@@ -41,7 +41,7 @@ DownloadManager.getInstance().add(itemTask);
 
 //下载管理具体使用，也需要对列表的adapter进行处理，具体实现请参考demo。
 ```
-# Update7
+# Update
 v1.1.7
 * 修复新下载任务在连接中状态时，点击按钮crash的bug。
 * 添加ConnectException捕获。
