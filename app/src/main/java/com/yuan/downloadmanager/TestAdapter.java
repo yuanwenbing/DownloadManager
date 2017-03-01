@@ -11,10 +11,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.yuan.library.dmanager.download.TaskEntity;
 import com.yuan.library.dmanager.download.DownloadManager;
 import com.yuan.library.dmanager.download.DownloadTask;
 import com.yuan.library.dmanager.download.DownloadTaskListener;
+import com.yuan.library.dmanager.download.TaskEntity;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -24,12 +24,12 @@ import butterknife.ButterKnife;
 
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_CANCEL;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_CONNECTING;
-import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_REQUEST_ERROR;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_DOWNLOADING;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_FINISH;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_INIT;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_PAUSE;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_QUEUE;
-import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_DOWNLOADING;
+import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_REQUEST_ERROR;
 import static com.yuan.library.dmanager.download.TaskStatus.TASK_STATUS_STORAGE_ERROR;
 
 /**
@@ -46,7 +46,6 @@ class TestAdapter extends RecyclerView.Adapter<TestAdapter.CViewHolder> {
 
     private DownloadManager mDownloadManager;
 
-
     TestAdapter(Context context, List<TestEntity> list) {
         mContext = context;
         mListData = list;
@@ -55,7 +54,6 @@ class TestAdapter extends RecyclerView.Adapter<TestAdapter.CViewHolder> {
 
     @Override
     public CViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         View itemView = LayoutInflater.from(mContext).inflate(R.layout.list_item, parent, false);
         return new CViewHolder(itemView);
     }

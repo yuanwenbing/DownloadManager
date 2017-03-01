@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
 import okhttp3.OkHttpClient;
@@ -93,7 +94,7 @@ public class DownloadTask implements Runnable {
             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_CONNECTING);
             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_CONNECTING);
 
-            if(DaoManager.instance().queryWidthId(mTaskEntity.getTaskId()) != null) {
+            if (DaoManager.instance().queryWidthId(mTaskEntity.getTaskId()) != null) {
                 DaoManager.instance().update(mTaskEntity);
             }
 
@@ -101,12 +102,12 @@ public class DownloadTask implements Runnable {
             Request request = new Request.Builder().url(mTaskEntity.getUrl()).header("RANGE", "bytes=" + completedSize + "-").build();
 
             if (tempFile.length() == 0) {
-               completedSize = 0;
+                completedSize = 0;
             }
             tempFile.seek(completedSize);
 
             Response response = mClient.newCall(request).execute();
-            if(response.isSuccessful()) {
+            if (response.isSuccessful()) {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null) {
                     if (DaoManager.instance().queryWidthId(mTaskEntity.getTaskId()) == null) {
@@ -141,7 +142,7 @@ public class DownloadTask implements Runnable {
                         }
                     }
                 }
-            }else{
+            } else {
                 mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_REQUEST_ERROR);
                 handler.sendEmptyMessage(TaskStatus.TASK_STATUS_REQUEST_ERROR);
             }
@@ -150,10 +151,10 @@ public class DownloadTask implements Runnable {
         } catch (FileNotFoundException e) {
             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_STORAGE_ERROR);
             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_STORAGE_ERROR);
-        } catch (SocketTimeoutException e) {
+        } catch (SocketTimeoutException | ConnectException e) {
             mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_REQUEST_ERROR);
             handler.sendEmptyMessage(TaskStatus.TASK_STATUS_REQUEST_ERROR);
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.close(bis, inputStream, tempFile);

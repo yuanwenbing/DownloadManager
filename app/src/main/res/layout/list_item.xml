@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:text="100"/>
+            android:text="0"/>
 
         <Button
             android:id="@+id/list_item_state_button"

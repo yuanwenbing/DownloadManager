@@ -42,7 +42,10 @@ public class DaoManager {
     }
 
     public void update(TaskEntity entity) {
-        DownloadManager.getInstance().getDaoSession().getTaskEntityDao().update(entity);
+        TaskEntityDao taskEntityDao = DownloadManager.getInstance().getDaoSession().getTaskEntityDao();
+        if(taskEntityDao.hasKey(entity)) {
+            taskEntityDao.update(entity);
+        }
     }
 
     public void delete(TaskEntity entity) {
