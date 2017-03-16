@@ -44,6 +44,7 @@ DownloadManager.getInstance().add(itemTask);
 # Update
 v1.1.8
 * 修复下载地址无效或者地址为空引起的crash。
+
 v1.1.7
 * 修复新下载任务在连接中状态时，点击按钮crash的bug。
 * 添加ConnectException捕获。
