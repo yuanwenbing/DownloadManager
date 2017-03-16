@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.yuan.library.dmanager.db.DaoManager;
 import com.yuan.library.dmanager.utils.FileUtils;
@@ -99,7 +100,15 @@ public class DownloadTask implements Runnable {
             }
 
             long completedSize = mTaskEntity.getCompletedSize();
-            Request request = new Request.Builder().url(mTaskEntity.getUrl()).header("RANGE", "bytes=" + completedSize + "-").build();
+            Request request;
+            try {
+                request = new Request.Builder().url(mTaskEntity.getUrl()).header("RANGE", "bytes=" + completedSize + "-").build();
+            } catch (IllegalArgumentException e) {
+                mTaskEntity.setTaskStatus(TaskStatus.TASK_STATUS_REQUEST_ERROR);
+                handler.sendEmptyMessage(TaskStatus.TASK_STATUS_REQUEST_ERROR);
+                Log.d("DownloadTask", e.getMessage());
+                return;
+            }
 
             if (tempFile.length() == 0) {
                 completedSize = 0;

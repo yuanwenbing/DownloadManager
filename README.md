@@ -15,7 +15,7 @@
 ## Gradle
 
 ```
-compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.7'
+compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.8'
 ```
 ## Maven
 
@@ -23,7 +23,7 @@ compile 'com.yuan.library.dmanager:downloadmanager-okhttp-release:1.1.7'
 <dependency>
   <groupId>com.yuan.library.dmanager</groupId>
   <artifactId>downloadmanager-okhttp-release</artifactId>
-  <version>1.1.7</version>
+  <version>1.1.8</version>
   <type>pom</type>
 </dependency>
 ```
@@ -42,6 +42,8 @@ DownloadManager.getInstance().add(itemTask);
 //下载管理具体使用，也需要对列表的adapter进行处理，具体实现请参考demo。
 ```
 # Update
+v1.1.8
+* 修复下载地址无效或者地址为空引起的crash。
 v1.1.7
 * 修复新下载任务在连接中状态时，点击按钮crash的bug。
 * 添加ConnectException捕获。

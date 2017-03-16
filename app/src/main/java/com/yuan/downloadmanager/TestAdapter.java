@@ -3,6 +3,7 @@ package com.yuan.downloadmanager;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,8 +64,12 @@ class TestAdapter extends RecyclerView.Adapter<TestAdapter.CViewHolder> {
 
         final TestEntity entity = mListData.get(holder.getAdapterPosition());
         holder.titleView.setText(entity.getTitle());
-        holder.itemView.setTag(mListData.get(holder.getAdapterPosition()).getUrl());
-        String taskId = String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode());
+
+        if(TextUtils.isEmpty( entity.getUrl())){
+            entity.setUrl("the item of " + holder.getAdapterPosition() + " is empty url...");
+        }
+        holder.itemView.setTag(entity.getUrl());
+        String taskId = String.valueOf(entity.getUrl().hashCode());
         DownloadTask itemTask = mDownloadManager.getTask(taskId);
 
         if (itemTask == null) {
@@ -125,7 +130,8 @@ class TestAdapter extends RecyclerView.Adapter<TestAdapter.CViewHolder> {
         holder.downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String taskId = String.valueOf(mListData.get(holder.getAdapterPosition()).getUrl().hashCode());
+                String url = entity.getUrl();
+                String taskId = String.valueOf(url.hashCode());
                 DownloadTask itemTask = mDownloadManager.getTask(taskId);
 
                 if (itemTask == null) {
